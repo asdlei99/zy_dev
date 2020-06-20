@@ -2,9 +2,10 @@
 
 import { app, protocol, BrowserWindow } from 'electron'
 import {
-  createProtocol
-  /* installVueDevtools */
+  createProtocol,
+  installVueDevtools
 } from 'vue-cli-plugin-electron-builder/lib'
+import './lib/site/server'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -21,8 +22,8 @@ function createWindow () {
     height: 600,
     webPreferences: {
       webSecurity: false,
-    // Use pluginOptions.nodeIntegration, leave this alone
-    // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
+      // Use pluginOptions.nodeIntegration, leave this alone
+      // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
       nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION
     }
   })
@@ -75,7 +76,6 @@ app.on('ready', async () => {
     } catch (e) {
       console.error('Vue Devtools failed to install:', e.toString())
     }
-
   }
   createWindow()
 })

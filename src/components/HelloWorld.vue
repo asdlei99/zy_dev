@@ -5,24 +5,33 @@
 </template>
 
 <script>
-// import jsonp from 'promisify-jsonp'
-// const pj = require('promisify-jsonp')
-// import jsonp from 'jsonp'
 import axios from 'axios'
-// import parser from 'fast-xml-parser'
+import { sites } from '@/lib/site/sites'
+import zy from '@/lib/site/tools'
 export default {
   name: 'HelloWorld',
   props: {
     msg: String
   },
   methods: {
-    getAxios () {
-      axios.post('http://localhost:3838/proxy', {
-        url: 'http://www.zdziyuan.com/inc/feifei3.4/'
+    getAxios (e) {
+      axios.post('http://localhost:4848/proxy', {
+        // url: 'https://cj.okzy.tv/inc/feifei3s/?ac=detail&wd=1'
+        url: e.api
       }).then(res => {
-        console.log(res, 'res')
+        // console.log(e.name)
+        console.log(res.data.info, 'res')
       })
     }
+  },
+  mounted () {
+    zy.detail('okzyw', '59569').then(res => {
+      console.log(res.data.info, 'hello')
+    })
+    console.log(sites.length)
+    // for (const i of sites) {
+    //   this.getAxios(i)
+    // }
   }
 }
 </script>
