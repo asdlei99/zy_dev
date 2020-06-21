@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+// import axios from 'axios'
 import { sites } from '@/lib/site/sites'
 import zy from '@/lib/site/tools'
 export default {
@@ -15,19 +15,21 @@ export default {
   },
   methods: {
     getAxios (e) {
-      axios.post('http://localhost:4848/proxy', {
-        // url: 'https://cj.okzy.tv/inc/feifei3s/?ac=detail&wd=1'
-        url: e.api
-      }).then(res => {
-        // console.log(e.name)
-        console.log(res.data.info, 'res')
+      // zy.class_list('okzyw').then(res => {
+      //   console.log(res)
+      // })
+      // zy.search('okzyw', '我不是药神').then(res => {
+      //   console.log(res)
+      // })
+      // zy.detail('okzyw', '4119').then(res => {
+      //   console.log(res.data.info, 'hello')
+      // })
+      zy.list('okzyw', 1, 12).then(res => {
+        console.log(res.data.info)
       })
     }
   },
   mounted () {
-    zy.detail('okzyw', '59569').then(res => {
-      console.log(res.data.info, 'hello')
-    })
     console.log(sites.length)
     // for (const i of sites) {
     //   this.getAxios(i)

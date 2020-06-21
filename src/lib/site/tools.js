@@ -2,15 +2,28 @@
 import { getSite } from './sites'
 import axios from 'axios'
 const zy = {
-  list (key, t, pg = 1, wd, h) {
-
+  ports: 4848,
+  // list (key, pg = 1, t) {
+  list (key, t) { // TODO list
+    return new Promise((resolve, reject) => {
+      const site = getSite(key)
+      let url = null
+      if (t) {
+        url = `${site.api}?ac=detail&t=${t}`
+      } else {
+        // url = `${site.api}?ac=detail&pg=${pg}`
+      }
+      axios.post('http://localhost:4848/proxy', { url: url }).then(res => {
+        resolve(res)
+      }).catch(err => {
+        reject(err)
+      })
+    })
   },
   class_list (key) { // 获取资源分类
     return new Promise((resolve, reject) => {
       const site = getSite(key)
-      axios.post('http://localhost:4848/proxy', {
-        url: site.api
-      }).then(res => {
+      axios.post('http://localhost:4848/proxy', { url: site.api }).then(res => {
         const d = res.data.info
         const arr = []
         if (d.data) {
@@ -36,11 +49,21 @@ const zy = {
       })
     })
   },
-  detail (key, id) {
+  search (key, wd, pg = 1) { // 搜索资源
     return new Promise((resolve, reject) => {
       const site = getSite(key)
-      axios.post('http://localhost:4848/proxy', { url: site.api + '?ids=' + id }).then(res => {
-        // console.log(res)
+      const keywords = encodeURI(wd)
+      axios.post('http://localhost:4848/proxy', { url: site.api + '?ac=detail&wd=' + keywords + '&pg=' + pg }).then(res => {
+        resolve(res)
+      }).catch(err => {
+        reject(err)
+      })
+    })
+  },
+  detail (key, id) { // TODO 详情
+    return new Promise((resolve, reject) => {
+      const site = getSite(key)
+      axios.post('http://localhost:4848/proxy', { url: site.api + '?ac=detail&vod_id=' + id }).then(res => {
         resolve(res)
       }).catch(err => {
         reject(err)
