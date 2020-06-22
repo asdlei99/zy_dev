@@ -15,25 +15,30 @@ export default {
   },
   methods: {
     getAxios (e) {
-      // zy.class_list('okzyw').then(res => {
+      // zy.type('okzy').then(res => {
       //   console.log(res)
       // })
-      // zy.search('okzyw', '我不是药神').then(res => {
-      //   console.log(res)
-      // })
-      // zy.detail('okzyw', '4119').then(res => {
-      //   console.log(res.data.info, 'hello')
-      // })
-      zy.list('okzyw', 1, 12).then(res => {
-        console.log(res.data.info)
+      zy.search('okzy', '我不是药神').then(res => {
+        console.log(res)
       })
+      // zy.list('xhgcjym', 1).then(res => {
+      //   console.log(res, 'list')
+      // })
+      // zy.detail('xhgcjym', 32316).then(res => {
+      //   console.log(res, 'detail')
+      // })
+      // zy.down('xhgcjym', 32316).then(res => {
+      //   console.log(res, 'down')
+      // })
+      // for (const i of sites) {
+      //   zy.list(i.key).then(res => {
+      //     console.log(i.key, res)
+      //   })
+      // }
     }
   },
   mounted () {
     console.log(sites.length)
-    // for (const i of sites) {
-    //   this.getAxios(i)
-    // }
   }
 }
 </script>

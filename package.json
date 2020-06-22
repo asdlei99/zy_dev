@@ -14,10 +14,11 @@
   "main": "background.js",
   "dependencies": {
     "axios": "^0.19.2",
+    "camaro": "^6.0.2",
     "core-js": "^3.6.5",
     "cors": "^2.8.5",
     "express": "^4.17.1",
-    "http-proxy-middleware": "^1.0.4",
+    "fast-xml-parser": "^3.17.4",
     "vue": "^2.6.11",
     "vuex": "^3.4.0"
   },

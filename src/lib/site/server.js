@@ -7,7 +7,15 @@ app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded())
 
-app.post('/proxy', async (req, res) => {
+app.post('/json', async (req, res) => {
+  const result = await get(req.body.url)
+  res.json({
+    code: 1,
+    info: result.data
+  })
+})
+
+app.post('/xml', async (req, res) => {
   const result = await get(req.body.url)
   res.json({
     code: 1,
