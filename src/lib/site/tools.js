@@ -84,10 +84,7 @@ const zy = {
   search (key, wd) {
     return new Promise((resolve, reject) => {
       const site = getSite(key)
-      // const keywords = encodeURI(wd)
-      // axios.post(`http://localhost:${this.ports}/json`, { url: site.json + '?ac=detail&wd=' + keywords }).then(res => {
-      axios.post(`http://localhost:${this.ports}/xml`, { url: site.xml + '?ac=videolist&wd=' + wd }).then(res => {
-        // const data = res.data.info.data
+      axios.post(`http://localhost:${this.ports}/xml`, { url: site.xml + '?wd=' + wd }).then(res => {
         const data = res.data.info
         const options = {
           ignoreAttributes: false,
@@ -97,7 +94,6 @@ const zy = {
         const json = parser.parse(data, options)
         const videoList = json.rss.list.video
         resolve(videoList)
-        // resolve(data)
       }).catch(err => {
         reject(err)
       })

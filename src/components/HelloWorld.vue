@@ -18,7 +18,7 @@ export default {
       // zy.type('okzy').then(res => {
       //   console.log(res)
       // })
-      zy.search('okzy', '我不是药神').then(res => {
+      zy.search('zuidazy', '我不是药神').then(res => {
         console.log(res)
       })
       // zy.list('xhgcjym', 1).then(res => {
