@@ -34,13 +34,6 @@ const sites = [
     xml: 'http://cj.zycjw1.com/inc/135m3u8.php',
     down: 'http://cj.zycjw1.com/inc/apidown.php'
   },
-  // {
-  //   key: 'leduozy',
-  //   name: '乐多资源',
-  //   json: 'http://www.leduozy.com/inc/feifei3/',
-  //   xml: 'http://www.leduozy.com/inc/api.php',
-  //   down: ''
-  // },
   {
     key: 'kankanzy',
     name: '看看资源',

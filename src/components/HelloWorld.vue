@@ -18,12 +18,12 @@ export default {
       // zy.type('okzy').then(res => {
       //   console.log(res)
       // })
-      zy.search('zuidazy', '我不是药神').then(res => {
-        console.log(res)
-      })
-      // zy.list('xhgcjym', 1).then(res => {
-      //   console.log(res, 'list')
+      // zy.search('zuidazy', '我不是药神').then(res => {
+      //   console.log(res)
       // })
+      zy.list('xhgcjym', 1).then(res => {
+        console.log(res, 'list')
+      })
       // zy.detail('xhgcjym', 32316).then(res => {
       //   console.log(res, 'detail')
       // })
