@@ -6,11 +6,25 @@
   </div>
 </template>
 <script>
+const { remote } = require('electron')
 export default {
   name: 'frame',
   methods: {
     frameClickEvent (e) {
-      this.$ipc.send(e)
+      const win = remote.getCurrentWindow()
+      if (e === 'winMin') {
+        win.minimize()
+      }
+      if (e === 'winMax') {
+        if (win.isMaximized()) {
+          win.unmaximize()
+        } else {
+          win.maximize()
+        }
+      }
+      if (e === 'winClose') {
+        win.destroy()
+      }
     }
   }
 }
