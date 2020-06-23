@@ -16,11 +16,7 @@ export default {
         win.minimize()
       }
       if (e === 'max') {
-        if (win.isMaximized()) {
-          win.unmaximize()
-        } else {
-          win.maximize()
-        }
+        win.isMaximized() ? win.unmaximize() : win.maximize()
       }
       if (e === 'close') {
         win.destroy()
