@@ -1,8 +1,8 @@
 <template>
   <div class="frame">
-    <span class="min" @click="frameClickEvent('winMin')"></span>
-    <span class="max" @click="frameClickEvent('winMax')"></span>
-    <span class="close" @click="frameClickEvent('winClose')"></span>
+    <span class="min" @click="frameClickEvent('min')"></span>
+    <span class="max" @click="frameClickEvent('max')"></span>
+    <span class="close" @click="frameClickEvent('close')"></span>
   </div>
 </template>
 <script>
@@ -12,17 +12,17 @@ export default {
   methods: {
     frameClickEvent (e) {
       const win = remote.getCurrentWindow()
-      if (e === 'winMin') {
+      if (e === 'min') {
         win.minimize()
       }
-      if (e === 'winMax') {
+      if (e === 'max') {
         if (win.isMaximized()) {
           win.unmaximize()
         } else {
           win.maximize()
         }
       }
-      if (e === 'winClose') {
+      if (e === 'close') {
         win.destroy()
       }
     }
