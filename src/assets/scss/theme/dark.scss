@@ -112,6 +112,7 @@
         background-color: var(--d-c-2);
       }
       &.active{
+        background-color: var(--d-bgc-2);
         svg{
           stroke: var(--d-c-0);
           stroke-width: 2;

@@ -103,6 +103,7 @@
         background-color: var(--l-c-2);
       }
       &.active{
+        background-color: var(--l-bgc-2);
         svg{
           stroke: var(--l-c-0);
           stroke-width: 2;
