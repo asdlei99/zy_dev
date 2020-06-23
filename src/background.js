@@ -3,6 +3,7 @@
 import './lib/site/server'
 import { app, protocol, BrowserWindow } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
+import { gloabShortcutlInit } from './lib/shortcut/key'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 let win
@@ -46,6 +47,7 @@ app.on('activate', () => {
 
 app.on('ready', async () => {
   createWindow()
+  gloabShortcutlInit(win)
 })
 
 if (isDevelopment) {

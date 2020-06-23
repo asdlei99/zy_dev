@@ -16,7 +16,7 @@ export default {
   name: 'App',
   data () {
     return {
-      view: 'Film'
+      view: 'Star'
     }
   },
   components: {
