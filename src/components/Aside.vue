@@ -36,14 +36,21 @@
   </div>
 </template>
 <script>
+import { mapMutations } from 'vuex'
 export default {
   name: 'Aside',
-  data () {
-    return {
-      view: 'Film'
+  computed: {
+    view: {
+      get () {
+        return this.$store.getters.getView
+      },
+      set (val) {
+        this.SET_VIEW(val)
+      }
     }
   },
   methods: {
+    ...mapMutations(['SET_VIEW']),
     changeView (e) {
       this.view = e
     }

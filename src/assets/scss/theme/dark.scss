@@ -39,6 +39,8 @@
       background-color: var(--d-bgc-1);
       box-shadow: var(--d-bsc);
       ul{
+        height: 600px;
+        overflow-y: scroll;
         li{
           &:hover{
             background-color: var(--d-c-1);

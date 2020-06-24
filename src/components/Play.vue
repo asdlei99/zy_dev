@@ -6,8 +6,11 @@ import mt from 'mousetrap'
 export default {
   name: 'play',
   data () {
-    return {
-      view: 'Star'
+    return {}
+  },
+  computed: {
+    view () {
+      return this.$store.getters.getView
     }
   },
   mounted () {

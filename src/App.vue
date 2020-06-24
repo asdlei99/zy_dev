@@ -14,9 +14,9 @@
 <script>
 export default {
   name: 'App',
-  data () {
-    return {
-      view: 'Star'
+  computed: {
+    view () {
+      return this.$store.getters.getView
     }
   },
   components: {
