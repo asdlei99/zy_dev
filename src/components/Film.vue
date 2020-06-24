@@ -17,6 +17,16 @@
           </ul>
         </div>
       </div>
+      <div class="zy-select">
+        <div class="input"></div>
+        <span class="zy-svg">
+          <svg role="img" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" aria-labelledby="searchIconTitle">
+            <title id="searchIconTitle">Search</title>
+            <path d="M14.4121122,14.4121122 L20,20"></path>
+            <circle cx="10" cy="10" r="6"></circle>
+          </svg>
+        </span>
+      </div>
     </div>
     <div class="body"></div>
   </div>
@@ -51,6 +61,9 @@ export default {
     typeClick (e) {
       this.type = e
     }
+  },
+  created () {
+    this.site = this.sites[0]
   }
 }
 </script>
