@@ -146,6 +146,9 @@ const zy = {
         reject(err)
       })
     })
+  },
+  check (url) {
+    return true
   }
 }
 
