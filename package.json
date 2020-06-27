@@ -22,6 +22,7 @@
     "modern-normalize": "^0.6.0",
     "mousetrap": "^1.6.5",
     "vue": "^2.6.11",
+    "vue-waterfall": "^1.0.6",
     "vuex": "^3.4.0"
   },
   "devDependencies": {

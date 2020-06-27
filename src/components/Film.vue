@@ -28,10 +28,20 @@
         </span>
       </div>
     </div>
-    <div class="body"></div>
+    <div class="body">
+      <div class="img">
+        <waterfall :line-gap="200" :watch="items">
+          <waterfall-slot v-for="(i, j) in items" :key="j" :order="j" :width="200" :height="400"></waterfall-slot>
+        </waterfall>
+      </div>
+      <div class="table"></div>
+      <div class="control"></div>
+    </div>
   </div>
 </template>
 <script>
+import Waterfall from 'vue-waterfall/lib/waterfall'
+import WaterfallSlot from 'vue-waterfall/lib/waterfall-slot'
 import { sites, getSite } from '../lib/site/sites'
 import zy from '../lib/site/tools'
 export default {
@@ -46,8 +56,13 @@ export default {
       sites: sites,
       site: {},
       types: [],
-      type: {}
+      type: {},
+      items: []
     }
+  },
+  components: {
+    Waterfall,
+    WaterfallSlot
   },
   methods: {
     siteClick (e) {
@@ -60,6 +75,11 @@ export default {
     },
     typeClick (e) {
       this.type = e
+      const key = this.site.key
+      zy.list(key, 1).then(res => {
+        console.log(res, 'res type click')
+        this.items = res.list
+      })
     }
   },
   created () {
@@ -79,6 +99,13 @@ export default {
     display: flex;
     align-items: center;
     justify-content: space-between;
+  }
+  .body{
+    margin-top: 20px;
+    flex: 1;
+    width: 100%;
+    background-color: var(--d-bgc-1);
+    border-radius: 0 0 5px 5px;
   }
 }
 </style>
