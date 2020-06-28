@@ -13,7 +13,6 @@ const zy = {
   list (key, pg = 1, t) {
     return new Promise((resolve, reject) => {
       const site = getSite(key)
-      console.log(site, 'list')
       let url = null
       if (t) {
         url = `${site.xml}?ac=videolist&t=${t}&pg=${pg}`

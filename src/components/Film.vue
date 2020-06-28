@@ -82,43 +82,39 @@ export default {
   },
   methods: {
     siteClick (e) {
-      this.site = e
       this.list = []
-      this.types = []
       this.page = 1
-      this.infiniteId += 1
+      this.types = []
+      this.type = {}
+      this.site = e
+      this.getType()
+      setTimeout(() => {
+        this.infiniteId += 1
+      }, 1000)
+    },
+    typeClick (e) {
+      this.list = []
+      this.page = 1
+      this.type = e
+      setTimeout(() => {
+        this.infiniteId += 1
+      }, 1000)
     },
     getType () {
       const key = this.site.key
       zy.type(key).then(res => {
         this.types = res
-        this.type = res[0]
-      })
-    },
-    typeClick (e) {
-      console.log(e, 'type click e')
-      this.list = []
-      this.type = e
-      this.page = 1
-      this.infiniteId += 1
-    },
-    getData () {
-      const key = this.site.key
-      zy.list(key, this.page).then(res => {
-        if (res.list.length) {
-          this.page += 1
-          this.list = this.list.concat(res.list)
-          // this.list.push(...res.list)
+        this.type = {
+          name: '最新',
+          tid: null
         }
       })
     },
     infiniteHandler ($state) {
       const key = this.site.key
       const type = this.type.tid
-      console.log(key, this.page, type, 'infinite')
       zy.list(key, this.page, type).then(res => {
-        console.log(res, 'inadsl')
-        if (res.list.length) {
+        if (res.list) {
           this.page += 1
           this.list.push(...res.list)
           $state.loaded()
@@ -154,7 +150,6 @@ export default {
     width: 100%;
     background-color: var(--d-bgc-1);
     border-radius: 0 0 5px 5px;
-    // position: relative;
     overflow-y: scroll;
     &::-webkit-scrollbar{
       width: 5px;
@@ -169,7 +164,6 @@ export default {
       position: absolute;
     }
     .img{
-      // position: absolute;
       height: 100%;
       width: 100%;
       padding: 10px;
@@ -177,9 +171,11 @@ export default {
         cursor: pointer;
         color: var(--d-fc-1);
         background-color: #111;
+        border-radius: 6px;
+        overflow: hidden;
         .name{
           font-size: 16px;
-          padding: 4px;
+          padding: 10px;
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
@@ -187,8 +183,8 @@ export default {
         .info{
           display: flex;
           justify-content: space-between;
-          font-size: 14px;
-          padding: 4px;
+          font-size: 12px;
+          padding: 10px;
         }
         &:hover{
           box-shadow: var(--d-bsc-hover);
