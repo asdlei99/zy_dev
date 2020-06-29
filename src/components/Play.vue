@@ -23,5 +23,13 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-.play{}
+.play{
+  position: relative;
+  height: calc(100% - 40px);
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
+}
 </style>

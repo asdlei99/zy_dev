@@ -152,10 +152,17 @@
         }
       }
       .detail-body{
-        .info, .desc, .m3u8_urls, .mp4_urls{
+        .info, .desc, .m3u8, .operate{
           border-color: var(--d-c-2);
         }
-        .m3u8_urls, .mp4_urls{
+        .operate{
+          span{
+            &:hover{
+              color: var(--d-fc-2);
+            }
+          }
+        }
+        .m3u8{
           .box{
             span{
               border-color: var(--d-c-5);

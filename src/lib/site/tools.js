@@ -23,6 +23,7 @@ const zy = {
         const data = res.data.info
         const options = {
           attributeNamePrefix: '_',
+          textNodeName: '_t',
           ignoreAttributes: false,
           parseAttributeValue: true,
           trimValues: true
@@ -132,19 +133,25 @@ const zy = {
   down (key, id) {
     return new Promise((resolve, reject) => {
       const site = getSite(key)
-      axios.post(`http://localhost:${this.ports}/xml`, { url: site.down + '?ac=videolist&ids=' + id + '&ct=1' }).then(res => {
-        const data = res.data.info
-        const options = {
-          ignoreAttributes: false,
-          parseAttributeValue: true,
-          trimValues: true
-        }
-        const json = parser.parse(data, options)
-        const videoList = json.rss.list.video
-        resolve(videoList)
-      }).catch(err => {
-        reject(err)
-      })
+      const url = site.down
+      if (url) {
+        axios.post(`http://localhost:${this.ports}/xml`, { url: url + '?ac=videolist&ids=' + id + '&ct=1' }).then(res => {
+          const data = res.data.info
+          const options = {
+            ignoreAttributes: false,
+            textNodeName: '_t',
+            parseAttributeValue: true,
+            trimValues: true
+          }
+          const json = parser.parse(data, options)
+          const videoList = json.rss.list.video
+          resolve(videoList)
+        }).catch(err => {
+          reject(err)
+        })
+      } else {
+        resolve(null)
+      }
     })
   },
   check (url) {

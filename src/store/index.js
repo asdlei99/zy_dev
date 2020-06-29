@@ -7,7 +7,12 @@ export default new Vuex.Store({
   state: {
     view: 'Film',
     theme: 'light',
-    site: 'zuidazy'
+    site: 'zuidazy',
+    detail: {
+      show: false,
+      key: '',
+      info: ''
+    }
   },
   getters: {
     getView: state => {
@@ -18,6 +23,9 @@ export default new Vuex.Store({
     },
     getSite: state => {
       return state.site
+    },
+    getDetail: state => {
+      return state.detail
     }
   },
   mutations: {
@@ -29,6 +37,9 @@ export default new Vuex.Store({
     },
     SET_SITE: (state, payload) => {
       state.site = payload
+    },
+    SET_DETAIL: (state, payload) => {
+      state.detail = payload
     }
   }
 })

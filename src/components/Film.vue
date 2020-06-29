@@ -29,7 +29,7 @@
       </div>
     </div>
     <div class="body zy-scroll" infinite-wrapper>
-      <div class="img">
+      <div class="show-img" v-if="show.img">
         <Waterfall :list="list" :gutter="20" :width="240"
         :breakpoints="{ 1200: { rowPerView: 4 } }"
         animationEffect="fadeInUp"
@@ -37,8 +37,17 @@
         ref="waterfall">
           <template slot="item" slot-scope="props">
             <div class="card">
-              <img style="width: 100%" :src="props.data.pic" alt="" @load="$refs.waterfall.refresh()">
-              <div class="name">{{props.data.name}}</div>
+              <div class="img">
+                <img style="width: 100%" :src="props.data.pic" alt="" @load="$refs.waterfall.refresh()" @click="detailEvent(props.data)">
+                <div class="operate">
+                  <div class="operate-wrap">
+                    <span class="o-play">播放</span>
+                    <span class="o-star">收藏</span>
+                    <span class="o-share">分享</span>
+                  </div>
+                </div>
+              </div>
+              <div class="name" @click="detailEvent(props.data)">{{props.data.name}}</div>
               <div class="info">
                 <span>{{props.data.year}}</span>
                 <span>{{props.data.type}}</span>
@@ -48,12 +57,30 @@
         </Waterfall>
         <infinite-loading force-use-infinite-wrapper :identifier="infiniteId" @infinite="infiniteHandler"></infinite-loading>
       </div>
-      <div class="table"></div>
-      <div class="control"></div>
+      <div class="show-table" v-if="!show.img">
+        <div class="zy-table">
+          <div class="tBody">
+            <ul>
+              <li v-for="(i, j) in list" :key="j" @click="detailEvent(i)">
+                <span class="name">{{i.name}}</span>
+                <span class="type">{{i.type}}</span>
+                <span class="time">{{i.last}}</span>
+                <span class="operate">
+                  <span class="btn" @click.stop="playEvent(i)">播放</span>
+                  <span class="btn" @click.stop="starEvent(i)">收藏</span>
+                  <span class="btn" @click.stop="shareEvent(i)">分享</span>
+                </span>
+              </li>
+            </ul>
+            <infinite-loading force-use-infinite-wrapper="tBody" :identifier="infiniteId" @infinite="infiniteHandler"></infinite-loading>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 <script>
+import { mapMutations } from 'vuex'
 import Waterfall from 'vue-waterfall-plugin'
 import InfiniteLoading from 'vue-infinite-loading'
 import { sites } from '../lib/site/sites'
@@ -65,7 +92,8 @@ export default {
       show: {
         site: false,
         type: false,
-        search: false
+        search: false,
+        img: true
       },
       sites: sites,
       site: {},
@@ -73,6 +101,7 @@ export default {
       type: {},
       page: 1,
       list: [],
+      pg: {},
       infiniteId: +new Date()
     }
   },
@@ -80,7 +109,18 @@ export default {
     Waterfall,
     InfiniteLoading
   },
+  computed: {
+    detail: {
+      get () {
+        return this.$store.getters.getDetail
+      },
+      set (val) {
+        this.SET_DETAIL(val)
+      }
+    }
+  },
   methods: {
+    ...mapMutations(['SET_VIEW', 'SET_SITE', 'SET_DETAIL', 'SET_VIDEO', 'SET_SHARE']),
     siteClick (e) {
       this.list = []
       this.page = 1
@@ -105,7 +145,7 @@ export default {
       zy.type(key).then(res => {
         this.types = res
         this.type = {
-          name: '最新',
+          name: '所有',
           tid: null
         }
       })
@@ -122,7 +162,18 @@ export default {
           $state.complete()
         }
       })
-    }
+    },
+    detailEvent (e) {
+      this.detail = {
+        show: true,
+        key: this.site.key,
+        info: e
+      }
+    },
+    playEvent (e) {},
+    starEvent (e) {},
+    shareEvent (e) {},
+    downloadEvent (e) {}
   },
   created () {
     this.site = this.sites[1]
@@ -163,22 +214,56 @@ export default {
       border-radius: 10px;
       position: absolute;
     }
-    .img{
+    .show-img{
       height: 100%;
       width: 100%;
       padding: 10px;
       .card{
-        cursor: pointer;
         color: var(--d-fc-1);
-        background-color: #111;
+        background-color: #1c1c1c;
         border-radius: 6px;
         overflow: hidden;
+        .img{
+          position: relative;
+          min-height: 40px;
+          img{
+            width: 100%;
+            height: auto;
+            cursor: pointer;
+          }
+          .operate{
+            display: none;
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            background-color: #111111aa;
+            width: 100%;
+            font-size: 13px;
+            .operate-wrap{
+              display: flex;
+              justify-content: space-between;
+              .o-play, .o-star, .o-share{
+                cursor: pointer;
+                display: inline-block;
+                width: 80px;
+                height: 36px;
+                text-align: center;
+                line-height: 36px;
+                color: #cdcdcd;
+                &:hover{
+                  background-color: #111;
+                }
+              }
+            }
+          }
+        }
         .name{
           font-size: 16px;
           padding: 10px;
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
+          cursor: pointer;
         }
         .info{
           display: flex;
@@ -188,10 +273,10 @@ export default {
         }
         &:hover{
           box-shadow: var(--d-bsc-hover);
+          .operate{
+            display: block;
+          }
         }
-      }
-      img{
-        width: 100%;
       }
     }
   }

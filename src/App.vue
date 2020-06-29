@@ -8,6 +8,9 @@
       <Star v-show="view === 'Star'" />
       <Setting v-show="view === 'Setting'" />
     </div>
+    <transition name="slide">
+      <Detail v-if="detail.show"/>
+    </transition>
   </div>
 </template>
 
@@ -17,6 +20,9 @@ export default {
   computed: {
     view () {
       return this.$store.getters.getView
+    },
+    detail () {
+      return this.$store.getters.getDetail
     }
   },
   components: {
