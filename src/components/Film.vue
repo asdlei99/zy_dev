@@ -41,9 +41,9 @@
                 <img style="width: 100%" :src="props.data.pic" alt="" @load="$refs.waterfall.refresh()" @click="detailEvent(props.data)">
                 <div class="operate">
                   <div class="operate-wrap">
-                    <span class="o-play">播放</span>
-                    <span class="o-star">收藏</span>
-                    <span class="o-share">分享</span>
+                    <span class="o-play" @click="playEvent(props.data)">播放</span>
+                    <span class="o-star" @click="starEvent(props.data)">收藏</span>
+                    <span class="o-share" @click="shareEvent(props.data)">分享</span>
                   </div>
                 </div>
               </div>
@@ -85,6 +85,7 @@ import Waterfall from 'vue-waterfall-plugin'
 import InfiniteLoading from 'vue-infinite-loading'
 import { sites } from '../lib/site/sites'
 import zy from '../lib/site/tools'
+import star from '../lib/dexie/star'
 export default {
   name: 'film',
   data () {
@@ -171,7 +172,26 @@ export default {
       }
     },
     playEvent (e) {},
-    starEvent (e) {},
+    starEvent (e) {
+      star.find({ site: this.site.key, ids: e.id }).then(res => {
+        if (res) {
+          this.$message.info('已存在')
+        } else {
+          const docs = {
+            site: this.site.key,
+            ids: e.id,
+            name: e.name,
+            type: e.type,
+            year: e.year
+          }
+          star.add(docs).then(res => {
+            this.$message.success('收藏成功')
+          })
+        }
+      }).catch(() => {
+        this.$message.warning('收藏失败')
+      })
+    },
     shareEvent (e) {},
     downloadEvent (e) {}
   },

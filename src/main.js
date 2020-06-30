@@ -1,8 +1,9 @@
 import Vue from 'vue'
 import App from './App.vue'
 import store from './store'
-import Register from './components/register'
 import 'modern-normalize'
+import Register from './components/register'
+import './lib/element/index'
 Register.registerComponents()
 Vue.config.productionTip = false
 new Vue({

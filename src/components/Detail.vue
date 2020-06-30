@@ -96,9 +96,9 @@ export default {
               downloadUrl += (url + '\n')
             }
             clipboard.writeText(downloadUrl)
-            console.log('『MP4』格式的链接已复制, 快去下载吧!')
+            this.$message.success('『MP4』格式的链接已复制, 快去下载吧!')
           } else {
-            console.log('没有查询到下载链接.')
+            this.$message.warning('没有查询到下载链接.')
           }
         } else {
           const list = [...this.m3u8List]
@@ -108,7 +108,7 @@ export default {
             downloadUrl += (url + '\n')
           }
           clipboard.writeText(downloadUrl)
-          console.log('『M3U8』格式的链接已复制, 快去下载吧!')
+          this.$message.success('『M3U8』格式的链接已复制, 快去下载吧!')
         }
       })
     }

@@ -2,8 +2,14 @@
   <div class="setting">setting</div>
 </template>
 <script>
+import setting from '../lib/dexie/setting'
 export default {
-  name: 'setting'
+  name: 'setting',
+  created () {
+    setting.find().then(res => {
+      console.log(res, 'setting')
+    })
+  }
 }
 </script>
 <style lang="scss" scoped>
