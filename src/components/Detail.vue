@@ -23,12 +23,13 @@
             <div class="area" v-show="detail.info.area">地区: {{detail.info.area}}</div>
             <div class="lang" v-show="detail.info.lang">语言: {{detail.info.lang}}</div>
             <div class="year" v-show="detail.info.year">上映: {{detail.info.year}}</div>
+            <div class="last" v-show="detail.info.last">更新: {{detail.info.last}}</div>
             <div class="note" v-show="detail.info.note">备注: {{detail.info.note}}</div>
           </div>
         </div>
         <div class="operate">
           <span>播放</span>
-          <span>收藏</span>
+          <span @click="starEvent">收藏</span>
           <span @click="downloadEvent">下载</span>
           <span>分享</span>
         </div>
@@ -46,6 +47,7 @@
 <script>
 import { mapMutations } from 'vuex'
 import zy from '../lib/site/tools'
+import star from '../lib/dexie/star'
 const { clipboard } = require('electron')
 export default {
   name: 'detail',
@@ -76,16 +78,41 @@ export default {
       this.detail.show = false
     },
     m3u8Parse (e) {
-      const text = e.dl.dd._t
+      const text = e.dl.dd
       if (text) {
-        this.m3u8List = text.split('#')
+        for (const i of text) {
+          if (i._flag.indexOf('m3u8') >= 0) {
+            this.m3u8List = i._t.split('#')
+          }
+        }
       }
     },
     playEvent (e) {
       console.log(e)
     },
+    starEvent () {
+      star.find({ site: this.detail.key, ids: this.detail.info.id }).then(res => {
+        if (res) {
+          this.$message.info('已存在')
+        } else {
+          const docs = {
+            site: this.detail.key,
+            ids: this.detail.info.id,
+            name: this.detail.info.name,
+            type: this.detail.info.type,
+            year: this.detail.info.year,
+            last: this.detail.info.last
+          }
+          star.add(docs).then(res => {
+            this.$message.success('收藏成功')
+          })
+        }
+      }).catch(() => {
+        this.$message.warning('收藏失败')
+      })
+    },
     downloadEvent () {
-      zy.down(this.detail.key, this.detail.info.id).then(res => {
+      zy.download(this.detail.key, this.detail.info.id).then(res => {
         if (res) {
           const text = res.dl.dd._t
           if (text) {
@@ -174,7 +201,7 @@ export default {
           margin-bottom: 10px;
           font-weight: bold;
         }
-        .director, .actor, .type, .area, .lang, .year, .note{
+        .director, .actor, .type, .area, .lang, .year, .last, .note{
           font-size: 14px;
           line-height: 26px;
         }
@@ -204,7 +231,7 @@ export default {
     }
     .m3u8{
       border: 1px solid;
-      padding: 10px;
+      padding: 10px 0 10px 10px;
       width: 100%;
       margin-bottom: 10px;
       border-radius: 2px;

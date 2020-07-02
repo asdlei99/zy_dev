@@ -9,11 +9,11 @@
           </ul>
         </div>
       </div>
-      <div class="zy-select" @mouseleave="show.type = false" v-if="types.length > 0">
-        <div class="vs-placeholder" @click="show.type = true">{{type.name}}</div>
-        <div class="vs-options" v-show="show.type">
+      <div class="zy-select" @mouseleave="show.classList = false" v-if="classList.length > 0">
+        <div class="vs-placeholder" @click="show.classList = true">{{type.name}}</div>
+        <div class="vs-options" v-show="show.classList">
           <ul class="zy-scroll">
-            <li :class="type.tid === i.tid ? 'active' : ''" v-for="i in types" :key="i.tid" @click="typeClick(i)">{{ i.name }}</li>
+            <li :class="type.tid === i.tid ? 'active' : ''" v-for="i in classList" :key="i.tid" @click="classClick(i)">{{ i.name }}</li>
           </ul>
         </div>
       </div>
@@ -28,7 +28,7 @@
         </span>
       </div>
     </div>
-    <div class="body zy-scroll" infinite-wrapper>
+    <div class="body zy-scroll" infinite-wrapper v-if="show.body">
       <div class="show-img" v-if="show.img">
         <Waterfall :list="list" :gutter="20" :width="240"
         :breakpoints="{ 1200: { rowPerView: 4 } }"
@@ -64,7 +64,8 @@
               <li v-for="(i, j) in list" :key="j" @click="detailEvent(i)">
                 <span class="name">{{i.name}}</span>
                 <span class="type">{{i.type}}</span>
-                <span class="time">{{i.last}}</span>
+                <span class="time">{{i.year}}</span>
+                <span class="last">{{i.last}}</span>
                 <span class="operate">
                   <span class="btn" @click.stop="playEvent(i)">播放</span>
                   <span class="btn" @click.stop="starEvent(i)">收藏</span>
@@ -83,7 +84,7 @@
 import { mapMutations } from 'vuex'
 import Waterfall from 'vue-waterfall-plugin'
 import InfiniteLoading from 'vue-infinite-loading'
-import { sites } from '../lib/site/sites'
+import { sites } from '../lib/dexie/initData'
 import zy from '../lib/site/tools'
 import star from '../lib/dexie/star'
 export default {
@@ -91,18 +92,18 @@ export default {
   data () {
     return {
       show: {
+        body: false,
         site: false,
-        type: false,
+        classList: false,
         search: false,
-        img: true
+        img: false
       },
       sites: sites,
       site: {},
-      types: [],
+      classList: [],
       type: {},
-      page: 1,
+      pagecount: 0,
       list: [],
-      pg: {},
       infiniteId: +new Date()
     }
   },
@@ -118,46 +119,81 @@ export default {
       set (val) {
         this.SET_DETAIL(val)
       }
+    },
+    share: {
+      get () {
+        return this.$store.getters.getShare
+      },
+      set (val) {
+        this.SET_SHARE(val)
+      }
     }
   },
   methods: {
     ...mapMutations(['SET_VIEW', 'SET_SITE', 'SET_DETAIL', 'SET_VIDEO', 'SET_SHARE']),
     siteClick (e) {
+      this.show.body = false
+      this.show.site = false
+      this.classList = []
       this.list = []
-      this.page = 1
-      this.types = []
       this.type = {}
       this.site = e
-      this.getType()
-      setTimeout(() => {
-        this.infiniteId += 1
-      }, 1000)
-    },
-    typeClick (e) {
-      this.list = []
-      this.page = 1
-      this.type = e
-      setTimeout(() => {
-        this.infiniteId += 1
-      }, 1000)
-    },
-    getType () {
-      const key = this.site.key
-      zy.type(key).then(res => {
-        this.types = res
-        this.type = {
-          name: '所有',
-          tid: null
+      this.getClass().then(res => {
+        if (res) {
+          this.infiniteId += 1
         }
+      })
+    },
+    classClick (e) {
+      this.show.body = false
+      this.show.classList = false
+      this.list = []
+      this.type = e
+      this.getPage().then(res => {
+        if (res) {
+          this.infiniteId += 1
+        }
+      })
+    },
+    getClass () {
+      return new Promise((resolve, reject) => {
+        const key = this.site.key
+        zy.class(key).then(res => {
+          this.classList = res.class
+          this.pagecount = res.pagecount
+          this.type = { name: '最新', tid: 0 }
+          this.show.body = true
+          resolve(true)
+        }).catch(err => {
+          reject(err)
+        })
+      })
+    },
+    getPage () {
+      return new Promise((resolve, reject) => {
+        const key = this.site.key
+        const type = this.type.tid
+        zy.page(key, type).then(res => {
+          this.pagecount = res.pagecount
+          this.show.body = true
+          resolve(true)
+        }).catch(err => {
+          reject(err)
+        })
       })
     },
     infiniteHandler ($state) {
       const key = this.site.key
       const type = this.type.tid
-      zy.list(key, this.page, type).then(res => {
-        if (res.list) {
-          this.page += 1
-          this.list.push(...res.list)
+      const page = this.pagecount
+      if (page < 1) {
+        $state.complete()
+        return false
+      }
+      zy.list(key, page, type).then(res => {
+        if (res) {
+          this.pagecount -= 1
+          this.list.push(...res)
           $state.loaded()
         } else {
           $state.complete()
@@ -182,7 +218,8 @@ export default {
             ids: e.id,
             name: e.name,
             type: e.type,
-            year: e.year
+            year: e.year,
+            last: e.last
           }
           star.add(docs).then(res => {
             this.$message.success('收藏成功')
@@ -192,12 +229,16 @@ export default {
         this.$message.warning('收藏失败')
       })
     },
-    shareEvent (e) {},
-    downloadEvent (e) {}
+    shareEvent (e) {
+      this.share = {
+        show: true,
+        info: e
+      }
+    }
   },
   created () {
-    this.site = this.sites[1]
-    this.getType()
+    this.site = this.sites[0]
+    this.getClass()
   }
 }
 </script>

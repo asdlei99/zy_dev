@@ -11,7 +11,11 @@ export default new Vuex.Store({
     detail: {
       show: false,
       key: '',
-      info: ''
+      info: {}
+    },
+    share: {
+      show: false,
+      info: {}
     }
   },
   getters: {
@@ -26,6 +30,9 @@ export default new Vuex.Store({
     },
     getDetail: state => {
       return state.detail
+    },
+    getShare: state => {
+      return state.share
     }
   },
   mutations: {
@@ -40,6 +47,9 @@ export default new Vuex.Store({
     },
     SET_DETAIL: (state, payload) => {
       state.detail = payload
+    },
+    SET_SHARE: (state, payload) => {
+      state.share = payload
     }
   }
 })

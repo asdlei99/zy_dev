@@ -11,6 +11,9 @@
     <transition name="slide">
       <Detail v-if="detail.show"/>
     </transition>
+    <transition name="slide">
+      <Share v-if="share.show"/>
+    </transition>
   </div>
 </template>
 
@@ -23,6 +26,9 @@ export default {
     },
     detail () {
       return this.$store.getters.getDetail
+    },
+    share () {
+      return this.$store.getters.getShare
     }
   },
   components: {
