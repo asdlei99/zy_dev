@@ -1,7 +1,8 @@
 <template>
   <div class="share" id="share" @click="shareClickEvent">
     <div class="left">
-      <img :src="this.share.info.pic" alt="" crossOrigin="anonymous">
+      <!-- <img :src="this.share.info.pic" alt=""> -->
+      <img :src="pic" alt="">
     </div>
     <div class="right">
       <div class="title">{{ share.info.name }}</div>
@@ -26,9 +27,10 @@ export default {
   name: 'share',
   data () {
     return {
+      pic: '',
       png: '',
       link: '',
-      loading: true
+      loading: false
     }
   },
   components: {
@@ -65,6 +67,7 @@ export default {
     getDetail () {
       this.loading = true
       const text = this.share.info.dl.dd
+      this.pic = 'https://rpg.pic-imges.com/pic/upload/vod/2020-05/1589768066.jpg'
       if (text) {
         for (const i of text) {
           if (i._flag.indexOf('m3u8') >= 0) {
@@ -77,7 +80,16 @@ export default {
       this.loading = false
       this.$nextTick(() => {
         const dom = document.getElementById('share')
-        html2canvas(dom, { useCORS: true, allowTaint: true, taintTest: false }).then(res => {
+        // html2canvas(dom, {
+        //   allowTaint: true,
+        //   foreignObjectRendering: true
+        // }).then(res => {
+        //   const png = res.toDataURL('image/png')
+        //   const p = nativeImage.createFromDataURL(png)
+        //   clipboard.writeImage(p)
+        //   this.$message.success('已复制到剪贴板，快去分享吧~ 严禁传播违法资源!!!')
+        // })
+        html2canvas(dom, { useCORS: true, allowTaint: true }).then(res => {
           const png = res.toDataURL('image/png')
           const p = nativeImage.createFromDataURL(png)
           clipboard.writeImage(p)
@@ -87,8 +99,9 @@ export default {
     }
   },
   mounted () {
+    // console.log('|' + this.share.info.pic + '|')
+    // this.img2Base64()
     this.getDetail()
-    console.log(this.share.info.pic)
   }
 }
 </script>

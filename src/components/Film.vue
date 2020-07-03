@@ -96,7 +96,7 @@ export default {
         site: false,
         classList: false,
         search: false,
-        img: false
+        img: true
       },
       sites: sites,
       site: {},
