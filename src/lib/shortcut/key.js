@@ -2,9 +2,9 @@ import { globalShortcut } from 'electron'
 import els from 'electron-localshortcut'
 
 const globalKey = {
-    name: 'focus',
-    desc: '老板键, 打开或隐藏界面',
-    key: 'Alt+Space'
+  name: 'focus',
+  desc: '老板键, 打开或隐藏界面',
+  key: 'Alt+Space'
 }
 const localKey = [
   {
@@ -106,11 +106,9 @@ const gloabShortcutlInit = (e) => {
 }
 
 const loaclShortcutInit = (e) => {
-  localKey.map(i, () => {
-    console.log(i, 'iiii')
-    els.register(e, i.key, () => {
-      console.log(e, i.key, i.name, 'loaclShortcutInit')
-      e.webContents.send(i.name)
+  localKey.map(item, () => {
+    els.register(e, item.key, () => {
+      e.webContents.send(item.name)
     })
   })
 }

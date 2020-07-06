@@ -232,6 +232,7 @@ export default {
     shareEvent (e) {
       this.share = {
         show: true,
+        key: this.site.key,
         info: e
       }
     }

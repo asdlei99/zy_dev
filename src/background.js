@@ -3,6 +3,7 @@
 import './lib/site/server'
 import { app, protocol, BrowserWindow } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
+import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import { gloabShortcutlInit } from './lib/shortcut/key'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
@@ -46,6 +47,13 @@ app.on('activate', () => {
 })
 
 app.on('ready', async () => {
+  if (isDevelopment && !process.env.IS_TEST) {
+    try {
+      await installExtension(VUEJS_DEVTOOLS)
+    } catch (e) {
+      console.error('Vue Devtools failed to install:', e.toString())
+    }
+  }
   createWindow()
   gloabShortcutlInit(win)
 })

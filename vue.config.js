@@ -6,6 +6,34 @@ module.exports = {
         nsis: {
           oneClick: false,
           allowToChangeInstallationDirectory: true
+        },
+        appId: 'com.hunlongyu.zy',
+        copyright: 'Copyright @ 2020 Hunlongyu',
+        productName: 'ZY Dev Player',
+        publish: [
+          {
+            provider: 'github',
+            owner: 'Hunlongyu',
+            repo: 'zy-dev'
+          }
+        ],
+        mac: {
+          icon: 'build/icon/icon.icns',
+          category: 'public.app-category.developer-tools',
+          target: 'default',
+          extendInfo: {
+            LSUIElement: 1
+          }
+        },
+        win: {
+          icon: 'build/icons/icon.ico',
+          target: 'nsis'
+        },
+        linux: {
+          icon: 'build/icons/'
+        },
+        snap: {
+          publish: ['github']
         }
       }
     }

@@ -3,6 +3,13 @@ import axios from 'axios'
 import parser from 'fast-xml-parser'
 const zy = {
   ports: 4848, // 端口号
+  xmlConfig: { // XML 转 JSON 配置
+    trimValues: true,
+    textNodeName: '_t',
+    ignoreAttributes: false,
+    attributeNamePrefix: '_',
+    parseAttributeValue: true
+  },
   /**
    * 获取资源分类 和 所有资源的总数, 分页等信息
    * @param {*} key 资源网 key
@@ -13,14 +20,7 @@ const zy = {
       const site = getSite(key)
       axios.post(`http://localhost:${this.ports}/api`, { url: site.api }).then(res => {
         const data = res.data.info
-        const options = {
-          attributeNamePrefix: '_',
-          textNodeName: '_t',
-          ignoreAttributes: false,
-          parseAttributeValue: true,
-          trimValues: true
-        }
-        const json = parser.parse(data, options)
+        const json = parser.parse(data, this.xmlConfig)
         const arr = []
         if (json.rss.class) {
           for (const i of json.rss.class.ty) {
@@ -62,14 +62,7 @@ const zy = {
       }
       axios.post(`http://localhost:${this.ports}/api`, { url: url }).then(async res => {
         const data = res.data.info
-        const options = {
-          attributeNamePrefix: '_',
-          textNodeName: '_t',
-          ignoreAttributes: false,
-          parseAttributeValue: true,
-          trimValues: true
-        }
-        const json = parser.parse(data, options)
+        const json = parser.parse(data, this.xmlConfig)
         const videoList = json.rss.list.video
         resolve(videoList)
       }).catch(err => {
@@ -94,14 +87,7 @@ const zy = {
       }
       axios.post(`http://localhost:${this.ports}/api`, { url: url }).then(async res => {
         const data = res.data.info
-        const options = {
-          attributeNamePrefix: '_',
-          textNodeName: '_t',
-          ignoreAttributes: false,
-          parseAttributeValue: true,
-          trimValues: true
-        }
-        const json = parser.parse(data, options)
+        const json = parser.parse(data, this.xmlConfig)
         const pg = {
           page: json.rss.list._page,
           pagecount: json.rss.list._pagecount,
@@ -125,12 +111,7 @@ const zy = {
       const site = getSite(key)
       axios.post(`http://localhost:${this.ports}/api`, { url: site.api + '?wd=' + wd }).then(res => {
         const data = res.data.info
-        const options = {
-          ignoreAttributes: false,
-          parseAttributeValue: true,
-          trimValues: true
-        }
-        const json = parser.parse(data, options)
+        const json = parser.parse(data, this.xmlConfig)
         const videoList = json.rss.list.video
         resolve(videoList)
       }).catch(err => {
@@ -149,12 +130,7 @@ const zy = {
       const site = getSite(key)
       axios.post(`http://localhost:${this.ports}/api`, { url: site.api + '?ac=videolist&ids=' + id }).then(res => {
         const data = res.data.info
-        const options = {
-          ignoreAttributes: false,
-          parseAttributeValue: true,
-          trimValues: true
-        }
-        const json = parser.parse(data, options)
+        const json = parser.parse(data, this.xmlConfig)
         const videoList = json.rss.list.video
         resolve(videoList)
       }).catch(err => {
@@ -175,13 +151,7 @@ const zy = {
       if (url) {
         axios.post(`http://localhost:${this.ports}/api`, { url: url + '?ac=videolist&ids=' + id + '&ct=1' }).then(res => {
           const data = res.data.info
-          const options = {
-            ignoreAttributes: false,
-            textNodeName: '_t',
-            parseAttributeValue: true,
-            trimValues: true
-          }
-          const json = parser.parse(data, options)
+          const json = parser.parse(data, this.xmlConfig)
           const videoList = json.rss.list.video
           resolve(videoList)
         }).catch(err => {

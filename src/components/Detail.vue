@@ -10,21 +10,21 @@
           </svg>
         </span>
       </div>
-      <div class="detail-body zy-scroll">
+      <div class="detail-body zy-scroll" v-show="!loading">
         <div class="info">
           <div class="info-left">
-            <img :src="detail.info.pic" alt="">
+            <img :src="info.pic" alt="">
           </div>
           <div class="info-right">
-            <div class="name">{{detail.info.name}}</div>
-            <div class="director" v-show="detail.info.director">导演: {{detail.info.director}}</div>
-            <div class="actor" v-show="detail.info.actor">主演: {{detail.info.actor}}</div>
-            <div class="type" v-show="detail.info.type">类型: {{detail.info.type}}</div>
-            <div class="area" v-show="detail.info.area">地区: {{detail.info.area}}</div>
-            <div class="lang" v-show="detail.info.lang">语言: {{detail.info.lang}}</div>
-            <div class="year" v-show="detail.info.year">上映: {{detail.info.year}}</div>
-            <div class="last" v-show="detail.info.last">更新: {{detail.info.last}}</div>
-            <div class="note" v-show="detail.info.note">备注: {{detail.info.note}}</div>
+            <div class="name">{{info.name}}</div>
+            <div class="director" v-show="info.director">导演: {{info.director}}</div>
+            <div class="actor" v-show="info.actor">主演: {{info.actor}}</div>
+            <div class="type" v-show="info.type">类型: {{info.type}}</div>
+            <div class="area" v-show="info.area">地区: {{info.area}}</div>
+            <div class="lang" v-show="info.lang">语言: {{info.lang}}</div>
+            <div class="year" v-show="info.year">上映: {{info.year}}</div>
+            <div class="last" v-show="info.last">更新: {{info.last}}</div>
+            <div class="note" v-show="info.note">备注: {{info.note}}</div>
           </div>
         </div>
         <div class="operate">
@@ -33,13 +33,15 @@
           <span @click="downloadEvent">下载</span>
           <span>分享</span>
         </div>
-        <div class="desc" v-show="detail.info.des">{{detail.info.des}}</div>
+        <div class="desc" v-show="info.des">{{info.des}}</div>
         <div class="m3u8">
           <div class="box">
             <span v-for="(i, j) in m3u8List" :key="j" @click="playEvent(j)">{{i | ftName}}</span>
           </div>
         </div>
-        <div class="mp4"></div>
+      </div>
+      <div class="detail-mask zy-loading" v-show="loading">
+        <div class="loader"></div>
       </div>
     </div>
   </div>
@@ -53,7 +55,9 @@ export default {
   name: 'detail',
   data () {
     return {
-      m3u8List: []
+      loading: true,
+      m3u8List: [],
+      info: {}
     }
   },
   filters: {
@@ -91,17 +95,17 @@ export default {
       console.log(e)
     },
     starEvent () {
-      star.find({ site: this.detail.key, ids: this.detail.info.id }).then(res => {
+      star.find({ site: this.detail.key, ids: this.info.id }).then(res => {
         if (res) {
           this.$message.info('已存在')
         } else {
           const docs = {
             site: this.detail.key,
-            ids: this.detail.info.id,
-            name: this.detail.info.name,
-            type: this.detail.info.type,
-            year: this.detail.info.year,
-            last: this.detail.info.last
+            ids: this.info.id,
+            name: this.info.name,
+            type: this.info.type,
+            year: this.info.year,
+            last: this.info.last
           }
           star.add(docs).then(res => {
             this.$message.success('收藏成功')
@@ -112,7 +116,7 @@ export default {
       })
     },
     downloadEvent () {
-      zy.download(this.detail.key, this.detail.info.id).then(res => {
+      zy.download(this.detail.key, this.info.id).then(res => {
         if (res) {
           const text = res.dl.dd._t
           if (text) {
@@ -138,10 +142,20 @@ export default {
           this.$message.success('『M3U8』格式的链接已复制, 快去下载吧!')
         }
       })
+    },
+    getDetailInfo () {
+      const id = this.detail.info.ids || this.detail.info.id
+      zy.detail(this.detail.key, id).then(res => {
+        if (res) {
+          this.info = res
+          this.m3u8Parse(res)
+          this.loading = false
+        }
+      })
     }
   },
   created () {
-    this.m3u8Parse(this.detail.info)
+    this.getDetailInfo()
   }
 }
 </script>
@@ -246,6 +260,53 @@ export default {
           margin: 6px 10px 0px 0px;
           padding: 8px 22px;
         }
+      }
+    }
+  }
+  .detail-mask{
+    position: absolute;
+    top: 50px;
+    left: 0;
+    width: 100%;
+    height: calc(100% - 50px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .loader {
+      font-size: 8px;
+      width: 1em;
+      height: 1em;
+      border-radius: 50%;
+      position: relative;
+      text-indent: -9999em;
+      animation: load4 1.3s infinite linear;
+      transform: translateZ(0);
+    }
+    @keyframes load4 {
+      0%,
+      100% {
+        box-shadow: 0 -3em 0 0.2em, 2em -2em 0 0em, 3em 0 0 -1em, 2em 2em 0 -1em, 0 3em 0 -1em, -2em 2em 0 -1em, -3em 0 0 -1em, -2em -2em 0 0;
+      }
+      12.5% {
+        box-shadow: 0 -3em 0 0, 2em -2em 0 0.2em, 3em 0 0 0, 2em 2em 0 -1em, 0 3em 0 -1em, -2em 2em 0 -1em, -3em 0 0 -1em, -2em -2em 0 -1em;
+      }
+      25% {
+        box-shadow: 0 -3em 0 -0.5em, 2em -2em 0 0, 3em 0 0 0.2em, 2em 2em 0 0, 0 3em 0 -1em, -2em 2em 0 -1em, -3em 0 0 -1em, -2em -2em 0 -1em;
+      }
+      37.5% {
+        box-shadow: 0 -3em 0 -1em, 2em -2em 0 -1em, 3em 0em 0 0, 2em 2em 0 0.2em, 0 3em 0 0em, -2em 2em 0 -1em, -3em 0em 0 -1em, -2em -2em 0 -1em;
+      }
+      50% {
+        box-shadow: 0 -3em 0 -1em, 2em -2em 0 -1em, 3em 0 0 -1em, 2em 2em 0 0em, 0 3em 0 0.2em, -2em 2em 0 0, -3em 0em 0 -1em, -2em -2em 0 -1em;
+      }
+      62.5% {
+        box-shadow: 0 -3em 0 -1em, 2em -2em 0 -1em, 3em 0 0 -1em, 2em 2em 0 -1em, 0 3em 0 0, -2em 2em 0 0.2em, -3em 0 0 0, -2em -2em 0 -1em;
+      }
+      75% {
+        box-shadow: 0em -3em 0 -1em, 2em -2em 0 -1em, 3em 0em 0 -1em, 2em 2em 0 -1em, 0 3em 0 -1em, -2em 2em 0 0, -3em 0em 0 0.2em, -2em -2em 0 0;
+      }
+      87.5% {
+        box-shadow: 0em -3em 0 0, 2em -2em 0 -1em, 3em 0 0 -1em, 2em 2em 0 -1em, 0 3em 0 -1em, -2em 2em 0 0, -3em 0em 0 0, -2em -2em 0 0.2em;
       }
     }
   }

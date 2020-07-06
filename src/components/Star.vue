@@ -44,6 +44,22 @@ export default {
       set (val) {
         this.SET_VIEW(val)
       }
+    },
+    detail: {
+      get () {
+        return this.$store.getters.getDetail
+      },
+      set (val) {
+        this.SET_DETAIL(val)
+      }
+    },
+    share: {
+      get () {
+        return this.$store.getters.getShare
+      },
+      set (val) {
+        this.SET_SHARE(val)
+      }
     }
   },
   watch: {
@@ -59,6 +75,13 @@ export default {
   },
   methods: {
     ...mapMutations(['SET_VIEW', 'SET_DETAIL', 'SET_VIDEO', 'SET_SHARE']),
+    detailEvent (e) {
+      this.detail = {
+        show: true,
+        key: e.site,
+        info: e
+      }
+    },
     playEvent (e) {},
     deleteEvent (e) {
       star.remove(e.id).then(res => {
@@ -70,7 +93,13 @@ export default {
         this.getStarList()
       })
     },
-    shareEvent (e) {},
+    shareEvent (e) {
+      this.share = {
+        show: true,
+        key: e.site,
+        info: e
+      }
+    },
     updateEvent (e) {
       zy.detail(e.site, e.ids).then(res => {
         if (e.last === res.last) {

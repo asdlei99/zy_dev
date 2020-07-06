@@ -1,7 +1,6 @@
 <template>
   <div class="share" id="share" @click="shareClickEvent">
     <div class="left">
-      <!-- <img :src="this.share.info.pic" alt=""> -->
       <img :src="pic" alt="">
     </div>
     <div class="right">
@@ -22,6 +21,7 @@
 import { mapMutations } from 'vuex'
 import QrcodeVue from 'qrcode.vue'
 import html2canvas from 'html2canvas'
+import zy from '../lib/site/tools'
 const { clipboard, nativeImage } = require('electron')
 export default {
   name: 'share',
@@ -66,41 +66,33 @@ export default {
     },
     getDetail () {
       this.loading = true
-      const text = this.share.info.dl.dd
-      this.pic = 'https://rpg.pic-imges.com/pic/upload/vod/2020-05/1589768066.jpg'
-      if (text) {
-        for (const i of text) {
-          if (i._flag.indexOf('m3u8') >= 0) {
-            const arr = i._t.split('#')
-            const url = arr[0].split('$')[1]
-            this.link = 'http://zyplayer.fun/player/player.html?url=' + url + '&title=' + this.share.info.name
+      const id = this.share.info.ids || this.share.info.id
+      zy.detail(this.share.key, id).then(res => {
+        if (res) {
+          this.pic = res.pic
+          const text = res.dl.dd
+          for (const i of text) {
+            if (i._flag.indexOf('m3u8') >= 0) {
+              const arr = i._t.split('#')
+              const url = arr[0].split('$')[1]
+              this.link = 'http://zyplayer.fun/player/player.html?url=' + url + '&title=' + this.share.info.name
+            }
           }
+          this.loading = false
+          this.$nextTick(() => {
+            const dom = document.getElementById('share')
+            html2canvas(dom, { useCORS: true, allowTaint: true }).then(res => {
+              const png = res.toDataURL('image/png')
+              const p = nativeImage.createFromDataURL(png)
+              clipboard.writeImage(p)
+              this.$message.success('已复制到剪贴板，快去分享吧~ 严禁传播违法资源!!!')
+            })
+          })
         }
-      }
-      this.loading = false
-      this.$nextTick(() => {
-        const dom = document.getElementById('share')
-        // html2canvas(dom, {
-        //   allowTaint: true,
-        //   foreignObjectRendering: true
-        // }).then(res => {
-        //   const png = res.toDataURL('image/png')
-        //   const p = nativeImage.createFromDataURL(png)
-        //   clipboard.writeImage(p)
-        //   this.$message.success('已复制到剪贴板，快去分享吧~ 严禁传播违法资源!!!')
-        // })
-        html2canvas(dom, { useCORS: true, allowTaint: true }).then(res => {
-          const png = res.toDataURL('image/png')
-          const p = nativeImage.createFromDataURL(png)
-          clipboard.writeImage(p)
-          this.$message.success('已复制到剪贴板，快去分享吧~ 严禁传播违法资源!!!')
-        })
       })
     }
   },
   mounted () {
-    // console.log('|' + this.share.info.pic + '|')
-    // this.img2Base64()
     this.getDetail()
   }
 }
