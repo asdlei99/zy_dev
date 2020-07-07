@@ -82,13 +82,16 @@ export default {
       this.detail.show = false
     },
     m3u8Parse (e) {
-      const text = e.dl.dd
-      if (text) {
-        for (const i of text) {
+      const dd = e.dl.dd
+      const type = Object.prototype.toString.call(dd)
+      if (type === '[object Array]') {
+        for (const i of dd) {
           if (i._flag.indexOf('m3u8') >= 0) {
             this.m3u8List = i._t.split('#')
           }
         }
+      } else {
+        this.m3u8List = dd._t.split('#')
       }
     },
     playEvent (e) {

@@ -112,6 +112,22 @@ export default {
     InfiniteLoading
   },
   computed: {
+    view: {
+      get () {
+        return this.$store.getters.getView
+      },
+      set (val) {
+        this.SET_VIEW(val)
+      }
+    },
+    video: {
+      get () {
+        return this.$store.getters.getVideo
+      },
+      set (val) {
+        this.SET_VIDEO(val)
+      }
+    },
     detail: {
       get () {
         return this.$store.getters.getDetail
@@ -193,7 +209,12 @@ export default {
       zy.list(key, page, type).then(res => {
         if (res) {
           this.pagecount -= 1
-          this.list.push(...res)
+          const type = Object.prototype.toString.call(res)
+          if (type === '[object Array]') {
+            this.list.push(...res)
+          } else {
+            this.list.push(res)
+          }
           $state.loaded()
         } else {
           $state.complete()
@@ -207,7 +228,11 @@ export default {
         info: e
       }
     },
-    playEvent (e) {},
+    playEvent (e) {
+      this.video = { key: this.site.key, info: e }
+      console.log(this.video, 'this video')
+      this.view = 'Play'
+    },
     starEvent (e) {
       star.find({ site: this.site.key, ids: e.id }).then(res => {
         if (res) {

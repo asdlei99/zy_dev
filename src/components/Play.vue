@@ -102,6 +102,8 @@
 <script>
 import { mapMutations } from 'vuex'
 import history from '../lib/dexie/history'
+import star from '../lib/dexie/star'
+import zy from '../lib/site/tools'
 import 'xgplayer'
 import Hls from 'xgplayer-hls.js'
 import mt from 'mousetrap'
@@ -118,14 +120,14 @@ export default {
       },
       config: {
         id: 'xg',
-        lang: 'zh-cn',
         url: '',
+        lang: 'zh-cn',
         width: '100%',
         height: '100%',
         autoplay: false,
         videoInit: true,
         screenShot: true,
-        keyShortcut: 'on',
+        keyShortcut: 'off',
         crossOrigin: true,
         cssFullscreen: true,
         defaultPlaybackRate: 1,
@@ -138,6 +140,11 @@ export default {
       showNext: true,
       isStar: false,
       isTop: false
+    }
+  },
+  filters: {
+    ftName (e) {
+      return e.split('$')[0]
     }
   },
   computed: {
@@ -174,9 +181,81 @@ export default {
       }
     }
   },
+  watch: {
+    view () {
+      this.right.show = false
+      this.right.type = ''
+    },
+    video: {
+      handler () {
+        this.getUrls()
+      },
+      deep: true
+    }
+  },
   methods: {
     ...mapMutations(['SET_VIEW', 'SET_DETAIL', 'SET_VIDEO', 'SET_SHARE']),
-    nextEvent () {},
+    getUrls () {
+      this.name = ''
+      if (this.xg) {
+        if (this.xg.hasStart) {
+          this.xg.pause()
+        }
+      }
+      this.playVideo()
+    },
+    playVideo (index = 0, time = 0) {
+      const id = this.video.info.id
+      zy.detail(this.video.key, id).then(res => {
+        this.name = res.name
+        const dd = res.dl.dd
+        const type = Object.prototype.toString.call(dd)
+        let m3u8Txt = []
+        if (type === '[object Array]') {
+          for (const i of dd) {
+            if (i._t.indexOf('m3u8') >= 0) {
+              m3u8Txt = i._t.split('#')
+            }
+          }
+        } else {
+          m3u8Txt = dd._t.split('#')
+        }
+        this.right.list = m3u8Txt
+        const m3u8Arr = []
+        for (const i of m3u8Txt) {
+          const j = i.split('$')
+          if (j.length > 1) {
+            for (let m = 0; m < j.length; m++) {
+              if (j[m].indexOf('m3u8') >= 0) {
+                m3u8Arr.push(j[m])
+              }
+            }
+          } else {
+            m3u8Arr.push(j[0])
+          }
+        }
+
+        if (time !== 0) {
+          this.xg.play()
+          this.xg.once('playing', () => {
+            this.xg.currentTime = time
+          })
+        } else {
+          this.xg.play()
+        }
+
+        this.xg.src = m3u8Arr[index]
+        this.xg.play()
+      })
+    },
+    nextEvent () {
+      if (this.video.index < this.right.list.length - 1) {
+        this.video.index++
+        this.video.currentTime = 0
+      } else {
+        this.$message.warning('这已经是最后一集了。')
+      }
+    },
     listEvent () {
       if (this.right.type === 'list') {
         this.right.show = false
@@ -198,7 +277,33 @@ export default {
         this.right.history = res.reverse()
       })
     },
-    starEvent () {},
+    getAllhistory () {
+      history.all().then(res => {
+        this.right.history = res
+      })
+    },
+    starEvent () {
+      const info = this.video.info
+      star.find({ site: this.video.key, ids: info.id }).then(res => {
+        if (res) {
+          this.$message.info('已存在')
+        } else {
+          const docs = {
+            site: this.video.key,
+            ids: info.id,
+            name: info.name,
+            type: info.type,
+            year: info.year,
+            last: info.last
+          }
+          star.add(docs).then(res => {
+            this.$message.success('收藏成功')
+          })
+        }
+      }).catch(() => {
+        this.$message.warning('收藏失败')
+      })
+    },
     detailEvent () {},
     smallEvent () {},
     shareEvent () {},
@@ -208,6 +313,9 @@ export default {
     historyItemEvent () {},
     removeHistoryItem () {}
   },
+  created () {
+    this.getAllhistory()
+  },
   mounted () {
     this.xg = new Hls(this.config)
     mt.bind('m', () => {
@@ -215,6 +323,9 @@ export default {
         console.log('click m')
       }
     })
+  },
+  beforeDestroy () {
+    console.log('beforeDestroy')
   }
 }
 </script>
