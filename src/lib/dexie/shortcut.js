@@ -7,5 +7,8 @@ export default {
   },
   async update (doc) {
     return await shortcut.update(doc)
+  },
+  async all () {
+    return await shortcut.toArray()
   }
 }

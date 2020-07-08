@@ -46,7 +46,7 @@
             <path d="M5 2h14a3 3 0 0 1 3 3v17H2V5a3 3 0 0 1 3-3z"></path>
           </svg>
         </span>
-        <span class="zy-svg" @click="smallEvent" v-show="right.list.length > 0">
+        <span class="zy-svg" @click="miniEvent" v-show="right.list.length > 0">
           <svg role="img" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" aria-labelledby="tvIconTitle">
             <title id="tvIconTitle">精简模式</title>
             <polygon points="20 8 20 20 4 20 4 8"></polygon>
@@ -100,14 +100,15 @@
 </template>
 <script>
 import { mapMutations } from 'vuex'
-import history from '../lib/dexie/history'
 import star from '../lib/dexie/star'
+import history from '../lib/dexie/history'
+import setting from '../lib/dexie/setting'
+import shortcut from '../lib/dexie/shortcut'
 import zy from '../lib/site/tools'
 import 'xgplayer'
 import Hls from 'xgplayer-hls.js'
 import mt from 'mousetrap'
-import { localKey } from '../lib/shortcut/key'
-const { remote } = require('electron')
+const { remote, ipcRenderer } = require('electron')
 export default {
   name: 'play',
   data () {
@@ -399,7 +400,12 @@ export default {
         info: this.video.info
       }
     },
-    smallEvent () {},
+    miniEvent () {
+      const win = remote.getCurrentWindow()
+      win.hide()
+      ipcRenderer.send('mini')
+      console.log('open mini')
+    },
     shareEvent () {
       this.share = {
         show: true,
@@ -459,13 +465,19 @@ export default {
       })
     },
     mtEvent () {
-      for (const i of localKey) {
-        mt.bind(i.key, () => {
-          if (this.view === 'Play') {
-            this.shortcutEvent(i.name)
-          }
-        })
-      }
+      setting.find().then(res => {
+        if (res.shortcut) {
+          shortcut.all().then(res => {
+            for (const i of res) {
+              mt.bind(i.key, () => {
+                if (this.view === 'Play') {
+                  this.shortcutEvent(i.name)
+                }
+              })
+            }
+          })
+        }
+      })
     },
     shortcutEvent (e) {
       if (e === 'playAndPause') {
@@ -573,6 +585,7 @@ export default {
           this.xg.playbackRate = rate + 0.25
           this.$message.info('当前播放速度为: ' + this.xg.playbackRate)
         }
+        return false
       }
       if (e === 'playbackRateDown') {
         if (this.xg && !this.xg.paused) {
@@ -582,6 +595,11 @@ export default {
             this.$message.info('当前播放速度为: ' + this.xg.playbackRate)
           }
         }
+        return false
+      }
+      if (e === 'mini') {
+        this.miniEvent()
+        return false
       }
     }
   },

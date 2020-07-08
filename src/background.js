@@ -7,6 +7,7 @@ import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 let win
+let mini
 
 protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { secure: true, standard: true } }])
 
@@ -35,6 +36,41 @@ function createWindow () {
   })
 }
 
+function createMini () {
+  mini = new BrowserWindow({
+    width: 550,
+    miniWidth: 260,
+    height: 340,
+    miniHeight: 180,
+    frame: false,
+    resizable: true,
+    webPreferences: {
+      webSecurity: false,
+      nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION
+    }
+  })
+
+  if (process.env.WEBPACK_DEV_SERVER_URL) {
+    mini.loadURL(process.env.WEBPACK_DEV_SERVER_URL)
+    if (!process.env.IS_TEST) mini.webContents.openDevTools()
+  } else {
+    createProtocol('app')
+    mini.loadURL('app://./mini.html')
+  }
+
+  mini.on('closed', () => {
+    mini = null
+  })
+}
+
+if (process.platform === 'darwin') {
+  app.dock.show()
+}
+if (process.platform === 'Linux') {
+  app.disableHardwareAcceleration()
+}
+app.allowRendererProcessReuse = true
+
 app.on('window-all-closed', () => {
   app.quit()
 })
@@ -45,19 +81,36 @@ app.on('activate', () => {
   }
 })
 
-app.on('ready', async () => {
-  if (isDevelopment && !process.env.IS_TEST) {
-    try {
-      await installExtension(VUEJS_DEVTOOLS)
-    } catch (e) {
-      console.error('Vue Devtools failed to install:', e.toString())
+const gotTheLock = app.requestSingleInstanceLock()
+if (!gotTheLock) {
+  app.quit()
+} else {
+  app.on('second-instance', (event, commandLine, workingDirectory) => {
+    if (win) {
+      if (win.isMinimized()) win.restore()
+      win.focus()
     }
-  }
-  createWindow()
-  globalShortcut.register('Alt+Space', () => {
-    win.isFocused() ? win.blur() : win.focus()
   })
-})
+  app.on('ready', async () => {
+    if (isDevelopment && !process.env.IS_TEST) {
+      try {
+        await installExtension(VUEJS_DEVTOOLS)
+      } catch (e) {
+        console.error('Vue Devtools failed to install:', e.toString())
+      }
+    }
+    createWindow()
+    globalShortcut.register('Alt+Space', () => {
+      if (win) {
+        win.isFocused() ? win.blur() : win.focus()
+      }
+      if (mini) {
+        mini.isFocused() ? mini.blur() : mini.focus()
+      }
+    })
+  })
+}
+
 
 if (isDevelopment) {
   if (process.platform === 'win32') {

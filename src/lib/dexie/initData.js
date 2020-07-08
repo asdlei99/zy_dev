@@ -3,6 +3,7 @@ const setting = [
     id: 0,
     theme: 'light',
     site: 'zuidazy',
+    shortcut: true,
     pass: false
   }
 ]
