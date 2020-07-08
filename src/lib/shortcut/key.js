@@ -1,5 +1,4 @@
 import { globalShortcut } from 'electron'
-import els from 'electron-localshortcut'
 
 const globalKey = {
   name: 'focus',
@@ -10,27 +9,27 @@ const localKey = [
   {
     name: 'playAndPause',
     desc: '播放或暂停',
-    key: 'Space'
+    key: 'space'
   },
   {
     name: 'forward',
     desc: '快进',
-    key: 'Right'
+    key: 'right'
   },
   {
     name: 'back',
     desc: '快退',
-    key: 'Left'
+    key: 'left'
   },
   {
     name: 'volumeUp',
     desc: '音量调高',
-    key: 'Up'
+    key: 'up'
   },
   {
     name: 'volumeDown',
     desc: '音量调高',
-    key: 'Down'
+    key: 'down'
   },
   {
     name: 'mute',
@@ -50,52 +49,52 @@ const localKey = [
   {
     name: 'escape',
     desc: '退出全屏',
-    key: 'Esc'
+    key: 'esc'
   },
   {
     name: 'next',
     desc: '下一集',
-    key: 'Alt+Right'
+    key: 'alt+right'
   },
   {
     name: 'prev',
     desc: '上一集',
-    key: 'Alt+Left'
+    key: 'alt+left'
   },
   {
     name: 'home',
     desc: '跳到视频开始位置',
-    key: 'Home'
+    key: 'home'
   },
   {
     name: 'end',
     desc: '跳到视频结束位置',
-    key: 'End'
+    key: 'end'
   },
   {
     name: 'opacityUp',
     desc: '透明度调高',
-    key: 'Alt+Up'
+    key: 'alt+up'
   },
   {
     name: 'opacityDown',
     desc: '透明度调低',
-    key: 'Alt+Down'
+    key: 'alt+down'
   },
   {
     name: 'playbackRateUp',
     desc: '播放倍速加快',
-    key: 'PageUp'
+    key: 'pageup'
   },
   {
     name: 'playbackRateDown',
     desc: '播放倍速减慢',
-    key: 'PageDown'
+    key: 'pagedown'
   },
   {
     name: 'mini',
     desc: '进入或退出mini模式',
-    key: 'Alt+m'
+    key: 'alt+m'
   }
 ]
 
@@ -105,17 +104,8 @@ const gloabShortcutlInit = (e) => {
   })
 }
 
-const loaclShortcutInit = (e) => {
-  localKey.map(item, () => {
-    els.register(e, item.key, () => {
-      e.webContents.send(item.name)
-    })
-  })
-}
-
 export {
   globalKey,
   localKey,
-  gloabShortcutlInit,
-  loaclShortcutInit
+  gloabShortcutlInit
 }

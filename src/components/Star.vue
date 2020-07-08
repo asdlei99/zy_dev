@@ -26,6 +26,7 @@
 <script>
 import { mapMutations } from 'vuex'
 import star from '../lib/dexie/star'
+import history from '../lib/dexie/history'
 import { getSite } from '../lib/dexie/initData'
 import zy from '../lib/site/tools'
 const { clipboard } = require('electron')
@@ -43,6 +44,14 @@ export default {
       },
       set (val) {
         this.SET_VIEW(val)
+      }
+    },
+    video: {
+      get () {
+        return this.$store.getters.getVideo
+      },
+      set (val) {
+        this.SET_VIDEO(val)
       }
     },
     detail: {
@@ -82,7 +91,16 @@ export default {
         info: e
       }
     },
-    playEvent (e) {},
+    playEvent (e) {
+      history.find({ site: e.site, ids: e.ids }).then(res => {
+        if (res) {
+          this.video = { key: res.site, info: { id: res.ids, name: res.name, index: res.index } }
+        } else {
+          this.video = { key: e.site, info: { id: e.ids, name: e.name, index: 0 } }
+        }
+      })
+      this.view = 'Play'
+    },
     deleteEvent (e) {
       star.remove(e.id).then(res => {
         if (res) {
@@ -152,7 +170,7 @@ export default {
     },
     getStarList () {
       star.all().then(res => {
-        this.list = res
+        this.list = res.reverse()
       })
     }
   },

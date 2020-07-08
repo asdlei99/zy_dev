@@ -1,10 +1,9 @@
 'use strict'
 
 import './lib/site/server'
-import { app, protocol, BrowserWindow } from 'electron'
+import { app, protocol, BrowserWindow, globalShortcut } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
-import { gloabShortcutlInit } from './lib/shortcut/key'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 let win
@@ -55,7 +54,9 @@ app.on('ready', async () => {
     }
   }
   createWindow()
-  gloabShortcutlInit(win)
+  globalShortcut.register('Alt+Space', () => {
+    win.isFocused() ? win.blur() : win.focus()
+  })
 })
 
 if (isDevelopment) {

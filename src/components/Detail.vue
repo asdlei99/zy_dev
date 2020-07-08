@@ -50,6 +50,7 @@
 import { mapMutations } from 'vuex'
 import zy from '../lib/site/tools'
 import star from '../lib/dexie/star'
+import history from '../lib/dexie/history'
 const { clipboard } = require('electron')
 export default {
   name: 'detail',
@@ -67,12 +68,28 @@ export default {
     }
   },
   computed: {
+    view: {
+      get () {
+        return this.$store.getters.getView
+      },
+      set (val) {
+        this.SET_VIEW(val)
+      }
+    },
     detail: {
       get () {
         return this.$store.getters.getDetail
       },
       set (val) {
         this.SET_DETAIL(val)
+      }
+    },
+    video: {
+      get () {
+        return this.$store.getters.getVideo
+      },
+      set (val) {
+        this.SET_VIDEO(val)
       }
     }
   },
@@ -94,8 +111,17 @@ export default {
         this.m3u8List = dd._t.split('#')
       }
     },
-    playEvent (e) {
-      console.log(e)
+    playEvent (n) {
+      history.find({ site: this.detail.key, ids: this.detail.info.ids }).then(res => {
+        if (res) {
+          this.video = { key: res.site, info: { id: res.ids, name: res.name, index: n } }
+        } else {
+          this.video = { key: this.detail.key, info: { id: this.detail.info.ids.id, name: this.detail.info.name, index: n } }
+        }
+      })
+
+      this.view = 'Play'
+      this.detail.show = false
     },
     starEvent () {
       star.find({ site: this.detail.key, ids: this.info.id }).then(res => {

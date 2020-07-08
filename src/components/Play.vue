@@ -2,7 +2,7 @@
   <div class="play">
     <div class="box">
       <div class="title">
-        {{name}}
+        <span v-if="this.right.list.length > 1">『第 {{(video.info.index + 1)}} 集』</span>{{name}}
       </div>
       <div class="player">
         <div id="xg"></div>
@@ -14,8 +14,7 @@
             <path d="M10 14.74L3 19V5l7 4.26V5l12 7-12 7v-4.26z"></path>
           </svg>
         </span>
-        <!-- <span class="zy-svg" @click="listEvent" :class="right.type === 'list' ? 'active' : ''" v-show="right.list.length > 0"> -->
-        <span class="zy-svg" @click="listEvent" :class="right.type === 'list' ? 'active' : ''">
+        <span class="zy-svg" @click="listEvent" :class="right.type === 'list' ? 'active' : ''" v-show="right.list.length > 0">
           <svg role="img" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" aria-labelledby="dashboardIconTitle">
             <title id="dashboardIconTitle">播放列表</title>
             <rect width="20" height="20" x="2" y="2"></rect>
@@ -87,12 +86,12 @@
         <div class="list-body zy-scroll" :style="{overflowY:scroll? 'auto' : 'hidden',paddingRight: scroll ? '0': '5px' }" @mouseenter="scroll = true" @mouseleave="scroll = false">
           <ul v-show="right.type === 'list'" class="list-item">
             <li v-show="right.list.length === 0">无数据</li>
-            <li @click="listItemEvent(j)" :class="video.index === j ? 'active' : ''" v-for="(i, j) in right.list" :key="j">{{i | ftName}}</li>
+            <li @click="listItemEvent(j)" :class="video.info.index === j ? 'active' : ''" v-for="(i, j) in right.list" :key="j">{{i | ftName(j)}}</li>
           </ul>
           <ul v-show="right.type === 'history'" class="list-history">
             <li v-show="right.history.length > 1" @click="clearAllHistory">清空</li>
             <li v-show="right.history.length === 0">无数据</li>
-            <li @click="historyItemEvent(m)" :class="video.detail === m.detail ? 'active' : ''" v-for="(m, n) in right.history" :key="n"><span class="title">{{m.name}}</span><span @click.stop="removeHistoryItem(m)" class="detail-delete">删除</span></li>
+            <li @click="historyItemEvent(m)" :class="video.info.id === m.ids ? 'active' : ''" v-for="(m, n) in right.history" :key="n"><span class="title">{{m.name}}</span><span @click.stop="removeHistoryItem(m)" class="detail-delete">删除</span></li>
           </ul>
         </div>
       </div>
@@ -107,6 +106,8 @@ import zy from '../lib/site/tools'
 import 'xgplayer'
 import Hls from 'xgplayer-hls.js'
 import mt from 'mousetrap'
+import { localKey } from '../lib/shortcut/key'
+const { remote } = require('electron')
 export default {
   name: 'play',
   data () {
@@ -137,14 +138,19 @@ export default {
       length: 0,
       timer: null,
       scroll: false,
-      showNext: true,
+      showNext: false,
       isStar: false,
       isTop: false
     }
   },
   filters: {
-    ftName (e) {
-      return e.split('$')[0]
+    ftName (e, n) {
+      const num = e.split('$')
+      if (num.length > 1) {
+        return e.split('$')[0]
+      } else {
+        return `第${(n + 1)}集`
+      }
     }
   },
   computed: {
@@ -197,12 +203,27 @@ export default {
     ...mapMutations(['SET_VIEW', 'SET_DETAIL', 'SET_VIDEO', 'SET_SHARE']),
     getUrls () {
       this.name = ''
+      if (this.timer !== null) {
+        clearInterval(this.timer)
+        this.timer = null
+      }
       if (this.xg) {
         if (this.xg.hasStart) {
           this.xg.pause()
         }
       }
-      this.playVideo()
+
+      const index = this.video.info.index | 0
+      let time = 0
+
+      history.find({ site: this.video.key, ids: this.video.info.id }).then(res => {
+        if (res) {
+          if (res.index === index) {
+            time = res.time
+          }
+        }
+        this.playVideo(index, time)
+      })
     },
     playVideo (index = 0, time = 0) {
       const id = this.video.info.id
@@ -235,6 +256,9 @@ export default {
           }
         }
 
+        this.xg.src = m3u8Arr[index]
+        this.showNext = m3u8Arr.length > 1
+
         if (time !== 0) {
           this.xg.play()
           this.xg.once('playing', () => {
@@ -244,14 +268,74 @@ export default {
           this.xg.play()
         }
 
-        this.xg.src = m3u8Arr[index]
-        this.xg.play()
+        this.videoPlaying()
+        this.xg.once('ended', () => {
+          if (m3u8Arr.length > 1 && (m3u8Arr.length - 1 > index)) {
+            this.video.info.time = 0
+            this.video.info.index++
+          }
+          this.xg.off('ended')
+        })
       })
     },
+    videoPlaying () {
+      this.changeVideo()
+      history.find({ site: this.video.key, ids: this.video.info.id }).then(res => {
+        if (res) {
+          const doc = {
+            id: res.id,
+            site: res.site,
+            ids: res.ids,
+            name: res.name,
+            type: res.type,
+            year: res.year,
+            index: this.video.info.index,
+            time: res.time
+          }
+          history.update(res.id, doc)
+        } else {
+          const doc = {
+            site: this.video.key,
+            ids: this.video.info.id,
+            name: this.video.info.name,
+            type: this.video.info.type,
+            year: this.video.info.year,
+            index: this.video.info.index,
+            time: ''
+          }
+          history.add(doc)
+        }
+      })
+      this.timerEvent()
+    },
+    changeVideo () {
+      this.checkStar()
+      this.checkTop()
+    },
+    timerEvent () {
+      this.timer = setInterval(() => {
+        history.find({ site: this.video.key, ids: this.video.info.id }).then(res => {
+          if (res) {
+            const doc = { ...res }
+            doc.time = this.xg.currentTime
+            delete doc.id
+            history.update(res.id, doc)
+          }
+        })
+      }, 10000)
+    },
+    prevEvent () {
+      if (this.video.info.index >= 1) {
+        this.video.info.index--
+        this.video.info.time = 0
+      } else {
+        this.$message.warning('这已经是第一集了。')
+      }
+    },
     nextEvent () {
-      if (this.video.index < this.right.list.length - 1) {
-        this.video.index++
-        this.video.currentTime = 0
+      if (this.video.info.index < (this.right.list.length - 1)) {
+        this.video.info.index++
+        this.video.info.time = 0
       } else {
         this.$message.warning('这已经是最后一集了。')
       }
@@ -279,14 +363,17 @@ export default {
     },
     getAllhistory () {
       history.all().then(res => {
-        this.right.history = res
+        this.right.history = res.reverse()
       })
     },
     starEvent () {
       const info = this.video.info
       star.find({ site: this.video.key, ids: info.id }).then(res => {
         if (res) {
-          this.$message.info('已存在')
+          star.remove(res.id).then(e => {
+            this.$message.info('取消收藏')
+            this.isStar = false
+          })
         } else {
           const docs = {
             site: this.video.key,
@@ -298,34 +385,215 @@ export default {
           }
           star.add(docs).then(res => {
             this.$message.success('收藏成功')
+            this.isStar = true
           })
         }
       }).catch(() => {
-        this.$message.warning('收藏失败')
+        this.$message.warning('检查收藏失败')
       })
     },
-    detailEvent () {},
+    detailEvent () {
+      this.detail = {
+        show: true,
+        key: this.video.key,
+        info: this.video.info
+      }
+    },
     smallEvent () {},
-    shareEvent () {},
-    closeListEvent () {},
-    clearAllHistory () {},
-    listItemEvent () {},
-    historyItemEvent () {},
-    removeHistoryItem () {}
+    shareEvent () {
+      this.share = {
+        show: true,
+        key: this.video.key,
+        info: this.video.info
+      }
+    },
+    checkStar () {
+      star.find({ site: this.video.key, ids: this.video.info.id }).then(res => {
+        if (res) {
+          this.isStar = true
+        } else {
+          this.isStar = false
+        }
+      })
+    },
+    checkTop () {
+      const win = remote.getCurrentWindow()
+      this.isTop = win.isAlwaysOnTop()
+    },
+    closeListEvent () {
+      this.right.show = false
+      this.right.type = ''
+    },
+    clearAllHistory () {
+      history.clear().then(res => {
+        this.right.history = []
+      })
+    },
+    listItemEvent (n) {
+      this.video.info.time = 0
+      this.video.info.index = n
+      this.right.show = false
+      this.right.type = ''
+    },
+    historyItemEvent (e) {
+      this.video = {
+        key: e.site,
+        info: {
+          id: e.ids,
+          name: e.name,
+          type: e.type,
+          year: e.year,
+          index: e.index,
+          time: e.time
+        }
+      }
+      this.right.show = false
+      this.right.type = ''
+    },
+    removeHistoryItem (e) {
+      history.remove(e.id).then(res => {
+        this.$message.success('删除历史记录成功~')
+        this.getAllhistory()
+      }).catch(err => {
+        this.$message.warning('删除历史记录失败, 错误信息: ' + err)
+      })
+    },
+    mtEvent () {
+      for (const i of localKey) {
+        mt.bind(i.key, () => {
+          if (this.view === 'Play') {
+            this.shortcutEvent(i.name)
+          }
+        })
+      }
+    },
+    shortcutEvent (e) {
+      if (e === 'playAndPause') {
+        if (this.xg) {
+          if (this.xg.paused) {
+            this.xg.play()
+          } else {
+            this.xg.pause()
+          }
+        }
+        return false
+      }
+      if (e === 'forward') {
+        if (this.xg && !this.xg.paused) {
+          this.xg.currentTime += 5
+        }
+        return false
+      }
+      if (e === 'back') {
+        if (this.xg && !this.xg.paused) {
+          this.xg.currentTime -= 5
+        }
+        return false
+      }
+      if (e === 'volumeUp') {
+        if (this.xg && this.xg.volume < 0.9) {
+          this.xg.volume += 0.1
+        }
+        return false
+      }
+      if (e === 'volumeDown') {
+        if (this.xg && this.xg.volume > 0.2) {
+          this.xg.volume -= 0.1
+        }
+        return false
+      }
+      if (e === 'mute') {
+        if (this.xg) {
+          this.xg.volume = 0
+        }
+        return false
+      }
+      if (e === 'top') {
+        const win = remote.getCurrentWindow()
+        if (win.isAlwaysOnTop()) {
+          win.setAlwaysOnTop(false)
+        } else {
+          win.setAlwaysOnTop(true)
+        }
+        return false
+      }
+      if (e === 'fullscreen') {
+        if (this.xg.fullscreen) {
+          this.xg.exitFullscreen()
+        } else {
+          this.xg.getFullscreen(this.xg.root)
+        }
+        return false
+      }
+      if (e === 'escape') {
+        this.xg.exitFullscreen()
+        this.xg.exitCssFullscreen()
+        return false
+      }
+      if (e === 'next') {
+        this.nextEvent()
+        return false
+      }
+      if (e === 'prev') {
+        this.prevEvent()
+        return false
+      }
+      if (e === 'home') {
+        if (this.xg && !this.xg.paused) {
+          this.xg.currentTime = 0
+        }
+        return false
+      }
+      if (e === 'end') {
+        if (this.xg && !this.xg.paused) {
+          const endTime = this.xg.duration
+          this.xg.currentTime = endTime
+        }
+        return false
+      }
+      if (e === 'opacityUp') {
+        const win = remote.getCurrentWindow()
+        const num = win.getOpacity()
+        if (num > 0.1) {
+          win.setOpacity(num - 0.1)
+        }
+        return false
+      }
+      if (e === 'opacityDown') {
+        const win = remote.getCurrentWindow()
+        const num = win.getOpacity()
+        if (num < 1) {
+          win.setOpacity(num + 0.1)
+        }
+        return false
+      }
+      if (e === 'playbackRateUp') {
+        if (this.xg && !this.xg.paused) {
+          const rate = this.xg.playbackRate
+          this.xg.playbackRate = rate + 0.25
+          this.$message.info('当前播放速度为: ' + this.xg.playbackRate)
+        }
+      }
+      if (e === 'playbackRateDown') {
+        if (this.xg && !this.xg.paused) {
+          const rate = this.xg.playbackRate
+          if (rate > 0.25) {
+            this.xg.playbackRate = rate - 0.25
+            this.$message.info('当前播放速度为: ' + this.xg.playbackRate)
+          }
+        }
+      }
+    }
   },
   created () {
     this.getAllhistory()
   },
   mounted () {
     this.xg = new Hls(this.config)
-    mt.bind('m', () => {
-      if (this.view === 'Play') {
-        console.log('click m')
-      }
-    })
+    this.mtEvent()
   },
   beforeDestroy () {
-    console.log('beforeDestroy')
+    clearInterval(this.timer)
   }
 }
 </script>

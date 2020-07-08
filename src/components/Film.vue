@@ -87,6 +87,7 @@ import InfiniteLoading from 'vue-infinite-loading'
 import { sites } from '../lib/dexie/initData'
 import zy from '../lib/site/tools'
 import star from '../lib/dexie/star'
+import history from '../lib/dexie/history'
 export default {
   name: 'film',
   data () {
@@ -229,8 +230,13 @@ export default {
       }
     },
     playEvent (e) {
-      this.video = { key: this.site.key, info: e }
-      console.log(this.video, 'this video')
+      history.find({ site: this.site.key, ids: e.id }).then(res => {
+        if (res) {
+          this.video = { key: res.site, info: { id: res.ids, name: res.name, index: res.index } }
+        } else {
+          this.video = { key: this.site.key, info: { id: e.id, name: e.name, index: 0 } }
+        }
+      })
       this.view = 'Play'
     },
     starEvent (e) {
