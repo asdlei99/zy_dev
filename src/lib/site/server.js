@@ -15,6 +15,4 @@ app.post('/api', async (req, res) => {
   })
 })
 
-app.listen(4848, () => {
-  console.log('4848 running')
-})
+app.listen(4848)
