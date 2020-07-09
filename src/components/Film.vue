@@ -4,7 +4,7 @@
       <div class="zy-select" @mouseleave="show.site = false">
         <div class="vs-placeholder" @click="show.site = true">{{site.name}}</div>
         <div class="vs-options" v-show="show.site">
-          <ul class="zy-scroll">
+          <ul class="zy-scroll" style="height: 600px;">
             <li :class="site.key === i.key ? 'active' : ''" v-for="i in sites" :key="i.key" @click="siteClick(i)">{{ i.name }}</li>
           </ul>
         </div>
@@ -12,7 +12,7 @@
       <div class="zy-select" @mouseleave="show.classList = false" v-if="classList.length > 0">
         <div class="vs-placeholder" @click="show.classList = true">{{type.name}}</div>
         <div class="vs-options" v-show="show.classList">
-          <ul class="zy-scroll">
+          <ul class="zy-scroll" style="height: 600px;">
             <li :class="type.tid === i.tid ? 'active' : ''" v-for="i in classList" :key="i.tid" @click="classClick(i)">{{ i.name }}</li>
           </ul>
         </div>
@@ -143,6 +143,17 @@ export default {
       set (val) {
         this.SET_SHARE(val)
       }
+    },
+    setting () {
+      return this.$store.getters.getSetting
+    }
+  },
+  watch: {
+    setting: {
+      handler () {
+        this.changeSetting()
+      },
+      deep: true
     }
   },
   methods: {
@@ -265,6 +276,15 @@ export default {
         key: this.site.key,
         info: e
       }
+    },
+    changeSetting () {
+      this.setting.view === 'picture' ? this.show.img = true : this.show.img = false
+      this.list = []
+      this.getClass().then(res => {
+        if (res) {
+          this.infiniteId += 1
+        }
+      })
     }
   },
   created () {
@@ -291,7 +311,6 @@ export default {
     margin-top: 20px;
     flex: 1;
     width: 100%;
-    background-color: var(--d-bgc-1);
     border-radius: 0 0 5px 5px;
     overflow-y: scroll;
     &::-webkit-scrollbar{
@@ -311,8 +330,6 @@ export default {
       width: 100%;
       padding: 10px;
       .card{
-        color: var(--d-fc-1);
-        background-color: #1c1c1c;
         border-radius: 6px;
         overflow: hidden;
         .img{
@@ -364,7 +381,6 @@ export default {
           padding: 10px;
         }
         &:hover{
-          box-shadow: var(--d-bsc-hover);
           .operate{
             display: block;
           }

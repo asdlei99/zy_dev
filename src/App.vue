@@ -1,5 +1,5 @@
 <template>
-  <div id="app" class="theme-dark">
+  <div id="app" :class="appTheme">
     <Aside />
     <div class="zy-body">
       <Frame />
@@ -20,6 +20,11 @@
 <script>
 export default {
   name: 'App',
+  data () {
+    return {
+      appTheme: 'theme-light'
+    }
+  },
   computed: {
     view () {
       return this.$store.getters.getView
@@ -29,9 +34,23 @@ export default {
     },
     share () {
       return this.$store.getters.getShare
+    },
+    setting () {
+      return this.$store.getters.getSetting
     }
   },
-  components: {
+  watch: {
+    setting: {
+      handler () {
+        this.changeSetting()
+      },
+      deep: true
+    }
+  },
+  methods: {
+    changeSetting () {
+      this.appTheme = `theme-${this.setting.theme}`
+    }
   }
 }
 </script>

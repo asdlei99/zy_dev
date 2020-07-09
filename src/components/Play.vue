@@ -183,6 +183,9 @@ export default {
       set (val) {
         this.SET_SHARE(val)
       }
+    },
+    setting () {
+      return this.$store.getters.getSetting
     }
   },
   watch: {
@@ -193,6 +196,12 @@ export default {
     video: {
       handler () {
         this.getUrls()
+      },
+      deep: true
+    },
+    setting: {
+      handler () {
+        this.changeSetting()
       },
       deep: true
     }
@@ -490,6 +499,12 @@ export default {
               })
             }
           })
+        } else {
+          shortcut.all().then(res => {
+            for (const i of res) {
+              mt.unbind(i.key)
+            }
+          })
         }
       })
     },
@@ -615,6 +630,9 @@ export default {
         this.miniEvent()
         return false
       }
+    },
+    changeSetting () {
+      this.mtEvent()
     }
   },
   created () {

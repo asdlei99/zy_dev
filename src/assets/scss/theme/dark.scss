@@ -39,7 +39,6 @@
       background-color: var(--d-bgc-1);
       box-shadow: var(--d-bsc);
       ul{
-        height: 600px;
         overflow-y: scroll;
         li{
           &:hover{
@@ -178,36 +177,17 @@
     }
   }
   .film{
-    .top{
-      .search{
-        background-color: var(--d-bgc-1);
-        box-shadow: var(--d-bsc);
-        &:hover{
-          box-shadow: var(--d-bsc-hover);
-        }
-        svg{
-          stroke: var(--d-c-0);
-          stroke-width: 1;
-          fill: none;
-        }
-        .search-box{
-          background-color: var(--d-bgc-1);
-        }
-        &.active{
-          box-shadow: var(--d-bsc-hover);
-          svg{
-            stroke-width: 1.5;
-            fill: var(--d-c-2);
+    .body{
+      background-color: var(--d-bgc-1);
+      .show-img{
+        color: var(--d-fc-1);
+        background-color: var(--d-bgc-3);
+        .card{
+          &:hover{
+            box-shadow: var(--d-bsc-hover);
           }
         }
-        input{
-          color: var(--d-fc-1);
-        }
       }
-    }
-    .middle{
-      background-color: var(--d-bgc-1);
-      box-shadow: var(--d-bsc);
     }
   }
   .play{
@@ -314,6 +294,11 @@
         &:hover{
           color: var(--d-fc-2);
         }
+      }
+    }
+    .view, .shortcut, .site{
+      .title{
+        color: var(--d-fc-1);
       }
     }
     .theme{

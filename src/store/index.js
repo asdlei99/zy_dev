@@ -6,8 +6,12 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     view: 'Film',
-    theme: 'light',
-    site: 'zuidazy',
+    setting: {
+      theme: 'light',
+      site: 'zuidazy',
+      view: 'picture',
+      shortcut: true
+    },
     detail: {
       show: false,
       key: '',
@@ -27,11 +31,8 @@ export default new Vuex.Store({
     getView: state => {
       return state.view
     },
-    getTheme: state => {
-      return state.theme
-    },
-    getSite: state => {
-      return state.site
+    getSetting: state => {
+      return state.setting
     },
     getDetail: state => {
       return state.detail
@@ -47,11 +48,8 @@ export default new Vuex.Store({
     SET_VIEW: (state, payload) => {
       state.view = payload
     },
-    SET_THEME: (state, payload) => {
-      state.theme = payload
-    },
-    SET_SITE: (state, payload) => {
-      state.site = payload
+    SET_SETTING: (state, payload) => {
+      state.setting = payload
     },
     SET_DETAIL: (state, payload) => {
       state.detail = payload
