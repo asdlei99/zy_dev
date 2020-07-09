@@ -1,7 +1,7 @@
 'use strict'
 
 import './lib/site/server'
-import { app, protocol, BrowserWindow, globalShortcut } from 'electron'
+import { app, protocol, BrowserWindow, globalShortcut, ipcMain } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
@@ -38,8 +38,8 @@ function createWindow () {
 
 function createMini () {
   mini = new BrowserWindow({
-    width: 550,
-    miniWidth: 260,
+    width: 1150,
+    miniWidth: 860,
     height: 340,
     miniHeight: 180,
     frame: false,
@@ -51,7 +51,7 @@ function createMini () {
   })
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
-    mini.loadURL(process.env.WEBPACK_DEV_SERVER_URL)
+    mini.loadURL(process.env.WEBPACK_DEV_SERVER_URL + 'mini')
     if (!process.env.IS_TEST) mini.webContents.openDevTools()
   } else {
     createProtocol('app')
@@ -79,6 +79,16 @@ app.on('activate', () => {
   if (win === null) {
     createWindow()
   }
+})
+
+ipcMain.on('mini', () => {
+  createMini()
+  win.hide()
+})
+
+ipcMain.on('win', () => {
+  mini.destroy()
+  win.show()
 })
 
 const gotTheLock = app.requestSingleInstanceLock()

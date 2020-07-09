@@ -86,8 +86,7 @@ import Waterfall from 'vue-waterfall-plugin'
 import InfiniteLoading from 'vue-infinite-loading'
 import { sites } from '../lib/dexie/initData'
 import zy from '../lib/site/tools'
-import star from '../lib/dexie/star'
-import history from '../lib/dexie/history'
+import { star, history } from '../lib/dexie'
 export default {
   name: 'film',
   data () {

@@ -1,4 +1,4 @@
-import db from './index'
+import db from './dexie'
 const { shortcut } = db
 
 export default {

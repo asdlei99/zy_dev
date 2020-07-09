@@ -49,8 +49,7 @@
 <script>
 import { mapMutations } from 'vuex'
 import zy from '../lib/site/tools'
-import star from '../lib/dexie/star'
-import history from '../lib/dexie/history'
+import { star, history } from '../lib/dexie'
 const { clipboard } = require('electron')
 export default {
   name: 'detail',

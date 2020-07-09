@@ -4,7 +4,7 @@
   </div>
 </template>
 <script>
-import setting from '../lib/dexie/setting'
+import { setting } from '../lib/dexie'
 const { BrowserView, remote } = require('electron')
 export default {
   name: 'setting',

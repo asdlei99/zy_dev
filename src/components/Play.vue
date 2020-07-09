@@ -100,10 +100,7 @@
 </template>
 <script>
 import { mapMutations } from 'vuex'
-import star from '../lib/dexie/star'
-import history from '../lib/dexie/history'
-import setting from '../lib/dexie/setting'
-import shortcut from '../lib/dexie/shortcut'
+import { star, history, setting, shortcut, mini } from '../lib/dexie'
 import zy from '../lib/site/tools'
 import 'xgplayer'
 import Hls from 'xgplayer-hls.js'
@@ -401,10 +398,27 @@ export default {
       }
     },
     miniEvent () {
-      const win = remote.getCurrentWindow()
-      win.hide()
-      ipcRenderer.send('mini')
-      console.log('open mini')
+      if (this.xg) {
+        this.xg.pause()
+      }
+      mini.find().then(res => {
+        const doc = {
+          id: 0,
+          site: this.video.key,
+          ids: this.video.info.id,
+          name: this.video.info.name,
+          index: this.video.info.index,
+          time: this.xg.currentTime
+        }
+        if (res) {
+          mini.update(doc)
+        } else {
+          mini.add(doc)
+        }
+        const win = remote.getCurrentWindow()
+        win.hide()
+        ipcRenderer.send('mini')
+      })
     },
     shareEvent () {
       this.share = {

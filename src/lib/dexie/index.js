@@ -1,23 +1,13 @@
-import Dexie from 'dexie'
-import { setting, sites, localKey } from './initData'
+import history from './history'
+import mini from './mini'
+import setting from './setting'
+import shortcut from './shortcut'
+import star from './star'
 
-const db = new Dexie('zy')
-
-db.version(3).stores({
-  search: '++id, keywords',
-  setting: 'id, theme, site, shortcut, pass',
-  shortcut: 'name, key, desc',
-  star: '++id, site, ids, name, type, year, index',
-  sites: '++id, index, key, name, json, xml, down, level',
-  history: '++id, site, ids, name, type, year, index, time'
-})
-
-db.on('populate', () => {
-  db.setting.bulkAdd(setting)
-  db.sites.bulkAdd(sites)
-  db.shortcut.bulkAdd(localKey)
-})
-
-db.open()
-
-export default db
+export {
+  history,
+  mini,
+  setting,
+  shortcut,
+  star
+}

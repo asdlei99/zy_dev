@@ -25,8 +25,7 @@
 </template>
 <script>
 import { mapMutations } from 'vuex'
-import star from '../lib/dexie/star'
-import history from '../lib/dexie/history'
+import { star, history } from '../lib/dexie'
 import { getSite } from '../lib/dexie/initData'
 import zy from '../lib/site/tools'
 const { clipboard } = require('electron')

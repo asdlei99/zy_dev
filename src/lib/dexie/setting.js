@@ -1,4 +1,4 @@
-import db from './index'
+import db from './dexie'
 const { setting } = db
 
 export default {
