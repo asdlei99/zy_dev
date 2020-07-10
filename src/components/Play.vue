@@ -322,7 +322,6 @@ export default {
     },
     timerEvent () {
       this.timer = setInterval(() => {
-        console.log(new Date().toLocaleTimeString(), 'time')
         history.find({ site: this.video.key, ids: this.video.info.id }).then(res => {
           if (res) {
             const doc = { ...res }
@@ -646,6 +645,8 @@ export default {
   mounted () {
     this.xg = new Hls(this.config)
     ipcRenderer.on('miniClosed', () => {
+      this.xg.destroy()
+      this.xg = new Hls(this.config)
       this.getUrls()
     })
   },
@@ -681,10 +682,12 @@ export default {
       width: 100%;
       flex: 1;
       padding: 0 10px;
+      overflow: hidden;
     }
     .more{
       width: 100%;
       height: 50px;
+      min-height: 50px;
       display: flex;
       justify-content: flex-start;
       align-items: center;
