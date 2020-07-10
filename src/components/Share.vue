@@ -109,7 +109,7 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding: 20px;
-  z-index: 888;
+  z-index: 999;
   .left, .right{
     width: 50%;
     height: 100%;

@@ -28,10 +28,10 @@
           </div>
         </div>
         <div class="operate">
-          <span>播放</span>
+          <span @click="playEvent(0)">播放</span>
           <span @click="starEvent">收藏</span>
           <span @click="downloadEvent">下载</span>
-          <span>分享</span>
+          <span @click="shareEvent">分享</span>
         </div>
         <div class="desc" v-show="info.des">{{info.des}}</div>
         <div class="m3u8">
@@ -90,10 +90,18 @@ export default {
       set (val) {
         this.SET_VIDEO(val)
       }
+    },
+    share: {
+      get () {
+        return this.$store.getters.getShare
+      },
+      set (val) {
+        this.SET_SHARE(val)
+      }
     }
   },
   methods: {
-    ...mapMutations(['SET_VIEW', 'SET_VIDEO', 'SET_DETAIL']),
+    ...mapMutations(['SET_VIEW', 'SET_VIDEO', 'SET_DETAIL', 'SET_SHARE']),
     close () {
       this.detail.show = false
     },
@@ -111,11 +119,11 @@ export default {
       }
     },
     playEvent (n) {
-      history.find({ site: this.detail.key, ids: this.detail.info.ids }).then(res => {
+      history.find({ site: this.detail.key, ids: this.detail.info.id }).then(res => {
         if (res) {
           this.video = { key: res.site, info: { id: res.ids, name: res.name, index: n } }
         } else {
-          this.video = { key: this.detail.key, info: { id: this.detail.info.ids.id, name: this.detail.info.name, index: n } }
+          this.video = { key: this.detail.key, info: { id: this.detail.info.id, name: this.detail.info.name, index: n } }
         }
       })
 
@@ -171,6 +179,13 @@ export default {
         }
       })
     },
+    shareEvent () {
+      this.share = {
+        show: true,
+        key: this.detail.key,
+        info: this.detail.info
+      }
+    },
     getDetailInfo () {
       const id = this.detail.info.ids || this.detail.info.id
       zy.detail(this.detail.key, id).then(res => {
@@ -194,7 +209,7 @@ export default {
   bottom: 0;
   width: 100%;
   height: calc(100% - 40px);
-  z-index: 999;
+  z-index: 888;
   .detail-content{
     height: calc(100% - 10px);
     padding: 0 60px;

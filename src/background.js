@@ -89,6 +89,7 @@ ipcMain.on('mini', () => {
 ipcMain.on('win', () => {
   mini.destroy()
   win.show()
+  win.webContents.send('miniClosed')
 })
 
 const gotTheLock = app.requestSingleInstanceLock()

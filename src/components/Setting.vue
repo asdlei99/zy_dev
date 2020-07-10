@@ -15,7 +15,7 @@
             <div class="vs-options" v-show="show.view">
               <ul class="zy-scroll">
                 <li :class="d.view === 'picture' ? 'active' : ''" @click="changeView('picture')">海报</li>
-                <li :class="d.view === 'table' ? 'active' : ''" @click="changeView('table')">表格</li>
+                <li :class="d.view === 'table' ? 'active' : ''" @click="changeView('table')">列表</li>
               </ul>
             </div>
           </div>

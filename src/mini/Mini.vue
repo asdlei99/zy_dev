@@ -353,10 +353,10 @@ export default {
   },
   created () {
     this.getUrls()
+    this.mtEvent()
   },
   mounted () {
     this.xg = new Hls(this.config)
-    this.mtEvent()
   },
   beforeDestroy () {
     clearInterval(this.timer)

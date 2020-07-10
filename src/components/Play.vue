@@ -138,7 +138,8 @@ export default {
       scroll: false,
       showNext: false,
       isStar: false,
-      isTop: false
+      isTop: false,
+      mini: {}
     }
   },
   filters: {
@@ -321,6 +322,7 @@ export default {
     },
     timerEvent () {
       this.timer = setInterval(() => {
+        console.log(new Date().toLocaleTimeString(), 'time')
         history.find({ site: this.video.key, ids: this.video.info.id }).then(res => {
           if (res) {
             const doc = { ...res }
@@ -424,6 +426,8 @@ export default {
         } else {
           mini.add(doc)
         }
+        this.mini = doc
+        clearInterval(this.timer)
         const win = remote.getCurrentWindow()
         win.hide()
         ipcRenderer.send('mini')
@@ -637,10 +641,13 @@ export default {
   },
   created () {
     this.getAllhistory()
+    this.mtEvent()
   },
   mounted () {
     this.xg = new Hls(this.config)
-    this.mtEvent()
+    ipcRenderer.on('miniClosed', () => {
+      this.getUrls()
+    })
   },
   beforeDestroy () {
     clearInterval(this.timer)
