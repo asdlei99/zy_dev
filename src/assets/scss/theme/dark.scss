@@ -1,37 +1,10 @@
 .theme-dark{
   background-color: var(--d-bgc-1);
-  .el-pagination{
-    background-color: var(--d-bgc-1);
-    color: var(--d-fc-1);
-    .el-pagination__total, .el-pagination__jump, .el-input__inner{
-      color: var(--d-fc-1);
-      background-color: var(--d-bgc-1);
-    }
-    .el-input__inner{
-      border-color: var(--d-c-3);
-    }
-    .el-pager{
-      .number{
-        background-color: var(--d-bgc-1);
-      }
-      .number:hover{
-        color: var(--d-c-8);
-      }
-      .active{
-        color: var(--d-c-9);
-      }
-    }
-    .more, .btn-next, .btn-prev{
-      background-color: var(--d-bgc-1);
-      &:hover{
-        color: var(--d-c-8);
-      }
-    }
-  }
   .zy-select{
     color: var(--d-fc-1);
     background-color: var(--d-bgc-1);
     box-shadow: var(--d-bsc);
+    transition: all 0.3s cubic-bezier(.25,.8,.25,1);
     &:hover{
       box-shadow: var(--d-bsc-hover);
     }
@@ -50,25 +23,25 @@
         }
       }
     }
+    .vs-input{
+      input{
+        color: var(--d-fc-1);
+        &::-webkit-input-placeholder{
+          color: var(--d-fc-1);
+        }
+      }
+    }
   }
   .zy-table{
     color: var(--d-fc-2);
-    .tHead{
-      background-color: var(--d-bgc-1);
-      border-bottom-color: var(--d-c-3);
-    }
     .tBody{
       border-bottom-color: var(--d-c-3);
       ul{
         li{
           border-bottom-color: var(--d-c-2);
+          transition: all 0.3s cubic-bezier(.25,.8,.25,1);
           &:hover{
-            animation: d-tableHoverAni 0.2s ease both;
-            @keyframes d-tableHoverAni {
-              to{
-                box-shadow: var(--d-bsc-hover);
-              }
-            }
+            box-shadow: var(--d-bsc-hover);
           }
           span{
             &.btn:hover{
@@ -78,21 +51,16 @@
         }
       }
     }
-    .tFooter{
-      .tFooter-span{
-        color: var(--d-fc-1);
-      }
-    }
   }
   .zy-scroll{
     &:hover{
       &::-webkit-scrollbar-thumb {
         box-shadow: var(--d-bsc-scroll);
-        background: var(--d-c-3);
+        background: var(--d-c-5);
       }
       &::-webkit-scrollbar-track {
         box-shadow: var(--d-bsc-scroll);
-        background: var(--bgc);
+        background: var(--d-bgc-1);
       }
     }
   }
@@ -179,10 +147,13 @@
   .film{
     .body{
       background-color: var(--d-bgc-1);
+      box-shadow: var(--d-bsc);
       .show-img{
         color: var(--d-fc-1);
-        background-color: var(--d-bgc-3);
         .card{
+          background-color: var(--d-bgc-1);
+          box-shadow: var(--d-bsc);
+          transition: all 0.3s cubic-bezier(.25,.8,.25,1);
           &:hover{
             box-shadow: var(--d-bsc-hover);
           }
@@ -276,10 +247,6 @@
         }
       }
     }
-    .play-mask{
-      background-color: var(--d-bgc-1);
-      color: var(--d-fc-1);
-    }
   }
   .star{
     background-color: var(--d-bgc-1);
@@ -307,6 +274,7 @@
       }
       .theme-item{
         box-shadow: var(--d-bsc);
+        transition: all 0.3s cubic-bezier(.25,.8,.25,1);
         &:hover{
           box-shadow: var(--d-bsc-hover);
           .theme-name{
@@ -324,6 +292,10 @@
       }
       .qrcode-item{
         box-shadow: var(--d-bsc);
+        transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+        &:hover{
+          box-shadow: var(--d-bsc-hover);
+        }
       }
     }
   }

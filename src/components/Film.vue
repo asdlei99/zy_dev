@@ -4,31 +4,30 @@
       <div class="zy-select" @mouseleave="show.site = false">
         <div class="vs-placeholder" @click="show.site = true">{{site.name}}</div>
         <div class="vs-options" v-show="show.site">
-          <ul class="zy-scroll" style="height: 600px;">
+          <ul class="zy-scroll" style="max-height: 600px;">
             <li :class="site.key === i.key ? 'active' : ''" v-for="i in sites" :key="i.key" @click="siteClick(i)">{{ i.name }}</li>
           </ul>
         </div>
       </div>
-      <div class="zy-select" @mouseleave="show.classList = false" v-if="classList.length > 0">
+      <div class="zy-select" @mouseleave="show.classList = false" v-if="show.class">
         <div class="vs-placeholder" @click="show.classList = true">{{type.name}}</div>
         <div class="vs-options" v-show="show.classList">
-          <ul class="zy-scroll" style="height: 600px;">
+          <ul class="zy-scroll" style="max-height: 600px;">
             <li :class="type.tid === i.tid ? 'active' : ''" v-for="i in classList" :key="i.tid" @click="classClick(i)">{{ i.name }}</li>
           </ul>
         </div>
       </div>
-      <div class="zy-select">
-        <div class="input"></div>
-        <span class="zy-svg">
-          <svg role="img" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" aria-labelledby="searchIconTitle">
-            <title id="searchIconTitle">Search</title>
-            <path d="M14.4121122,14.4121122 L20,20"></path>
-            <circle cx="10" cy="10" r="6"></circle>
-          </svg>
-        </span>
+      <div class="zy-select" @mouseleave="show.search = false">
+        <div class="vs-input" @click="show.search = true"><input v-model.trim="searchTxt" type="text" placeholder="搜索" @keyup.enter="searchEvent"></div>
+        <div class="vs-options" v-show="show.search">
+          <ul class="zy-scroll" style="max-height: 600px">
+            <li v-for="(i, j) in searchList" :key="j" @click="searchClickEvent(i)">{{i.keywords}}</li>
+            <li @click="clearSearch">清空历史记录</li>
+          </ul>
+        </div>
       </div>
     </div>
-    <div class="body zy-scroll" infinite-wrapper v-if="show.body">
+    <div class="body zy-scroll" infinite-wrapper>
       <div class="show-img" v-if="show.img">
         <Waterfall :list="list" :gutter="20" :width="240"
         :breakpoints="{ 1200: { rowPerView: 4 } }"
@@ -82,11 +81,10 @@
 </template>
 <script>
 import { mapMutations } from 'vuex'
+import { star, history, search, sites } from '../lib/dexie'
+import zy from '../lib/site/tools'
 import Waterfall from 'vue-waterfall-plugin'
 import InfiniteLoading from 'vue-infinite-loading'
-import { sites } from '../lib/dexie/initData'
-import zy from '../lib/site/tools'
-import { star, history } from '../lib/dexie'
 export default {
   name: 'film',
   data () {
@@ -94,17 +92,21 @@ export default {
       show: {
         body: false,
         site: false,
+        class: false,
         classList: false,
         search: false,
         img: true
       },
-      sites: sites,
+      sites: [],
       site: {},
       classList: [],
       type: {},
       pagecount: 0,
       list: [],
-      infiniteId: +new Date()
+      infiniteId: +new Date(),
+      refresh: 0,
+      searchList: [],
+      searchTxt: ''
     }
   },
   components: {
@@ -154,25 +156,34 @@ export default {
         this.changeSetting()
       },
       deep: true
+    },
+    view () {
+      this.changeView()
+    },
+    searchTxt () {
+      this.searchChangeEvent()
     }
   },
   methods: {
-    ...mapMutations(['SET_VIEW', 'SET_SITE', 'SET_DETAIL', 'SET_VIDEO', 'SET_SHARE']),
+    ...mapMutations(['SET_VIEW', 'SET_DETAIL', 'SET_VIDEO', 'SET_SHARE']),
     siteClick (e) {
-      this.show.body = false
-      this.show.site = false
-      this.classList = []
       this.list = []
-      this.type = {}
       this.site = e
-      this.getClass().then(res => {
-        if (res) {
-          this.infiniteId += 1
-        }
-      })
+      this.show.site = false
+      if (this.searchTxt.length > 0) {
+        this.searchEvent()
+      } else {
+        this.classList = []
+        this.type = {}
+        this.getClass().then(res => {
+          if (res) {
+            this.show.class = true
+            this.infiniteId += 1
+          }
+        })
+      }
     },
     classClick (e) {
-      this.show.body = false
       this.show.classList = false
       this.list = []
       this.type = e
@@ -187,9 +198,9 @@ export default {
         const key = this.site.key
         zy.class(key).then(res => {
           this.classList = res.class
+          this.show.class = true
           this.pagecount = res.pagecount
           this.type = { name: '最新', tid: 0 }
-          this.show.body = true
           resolve(true)
         }).catch(err => {
           reject(err)
@@ -278,18 +289,78 @@ export default {
       }
     },
     changeSetting () {
-      this.setting.view === 'picture' ? this.show.img = true : this.show.img = false
       this.list = []
-      this.getClass().then(res => {
-        if (res) {
+      this.setting.view === 'picture' ? this.show.img = true : this.show.img = false
+      this.refresh++
+    },
+    changeView () {
+      if (this.refresh >= 1) {
+        this.getPage().then(() => {
           this.infiniteId += 1
-        }
+          this.refresh = 0
+        })
+      }
+    },
+    getAllSearch () {
+      search.all().then(res => {
+        this.searchList = res.reverse()
+      })
+    },
+    searchEvent () {
+      const wd = this.searchTxt
+      this.list = []
+      this.pagecount = 0
+      this.show.search = false
+      if (wd) {
+        search.find({ keywords: wd }).then(res => {
+          if (!res) {
+            search.add({ keywords: wd })
+          }
+          this.getAllSearch()
+        })
+        zy.search(this.site.key, wd).then(res => {
+          this.list = res
+        })
+      } else {
+        this.$message.warning('请输入关键字')
+      }
+    },
+    searchClickEvent (e) {
+      this.list = []
+      this.pagecount = 0
+      this.searchTxt = e.keywords
+      this.show.search = false
+      search.remove(e.id).then(res => {
+        search.add({ keywords: e.keywords })
+        this.getAllSearch()
+      })
+      zy.search(this.site.key, e.keywords).then(res => {
+        this.list = res
+      })
+    },
+    clearSearch () {
+      search.clear().then(res => {
+        this.getAllSearch()
+      })
+    },
+    searchChangeEvent () {
+      if (this.searchTxt.length >= 1) {
+        this.show.class = false
+      } else {
+        this.show.class = true
+      }
+    },
+    getAllsites () {
+      sites.all().then(res => {
+        this.sites = res
+        this.site = this.sites[0]
+        this.siteClick(this.site)
       })
     }
   },
   created () {
-    this.site = this.sites[0]
-    this.getClass()
+    this.getAllsites()
+    this.getAllSearch()
   }
 }
 </script>

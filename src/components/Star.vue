@@ -8,7 +8,7 @@
               <span class="name">{{i.name}}</span>
               <span class="type">{{i.type}}</span>
               <span class="time">{{i.year}}</span>
-              <span class="from">{{i.site | ftSite}}</span>
+              <span class="from">{{i.site}}</span>
               <span class="operate" style="width: 220px">
                 <span class="btn" @click.stop="playEvent(i)">播放</span>
                 <span class="btn" @click.stop="deleteEvent(i)">删除</span>
@@ -26,7 +26,6 @@
 <script>
 import { mapMutations } from 'vuex'
 import { star, history } from '../lib/dexie'
-import { getSite } from '../lib/dexie/initData'
 import zy from '../lib/site/tools'
 const { clipboard } = require('electron')
 export default {
@@ -73,12 +72,6 @@ export default {
   watch: {
     view () {
       this.getStarList()
-    }
-  },
-  filters: {
-    ftSite (e) {
-      const name = getSite(e).name
-      return name
     }
   },
   methods: {

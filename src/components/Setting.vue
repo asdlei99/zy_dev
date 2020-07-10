@@ -95,6 +95,17 @@
           </div>
         </div>
       </div>
+      <div class="qrcode">
+        <div class="title">请作者吃辣条</div>
+        <div class="qrcode-box">
+          <img class="qrcode-item" src="../assets/image/alipay.png">
+          <img class="qrcode-item" src="../assets/image/wepay.jpg">
+        </div>
+      </div>
+      <div class="clearDB">
+        <span @click="clearDBEvent" class="clearBtn">软件重置</span>
+        <span class="clearTips">如非必要, 切勿点击. 会清空用户数据, 恢复默认设置. 点击即软件重置, 并关闭软件.</span>
+      </div>
       <div class="Tips">
         <span>所有资源来自网上, 该软件不参与任何制作, 上传, 储存等内容, 禁止传播违法资源. 该软件仅供学习参考, 请于安装后24小时内删除.</span>
       </div>
@@ -105,7 +116,8 @@
 import { mapMutations } from 'vuex'
 import pkg from '../../package.json'
 import { setting, sites, shortcut } from '../lib/dexie'
-import { shell, clipboard } from 'electron'
+import { shell, clipboard, remote } from 'electron'
+import db from '../lib/dexie/dexie'
 export default {
   name: 'setting',
   data () {
@@ -228,6 +240,13 @@ export default {
         })
       })
     },
+    clearDBEvent () {
+      db.delete().then(res => {
+        this.$m.success('重置成功')
+        const win = remote.getCurrentWindow()
+        win.destroy()
+      })
+    },
     openDoc (e) {}
   },
   created () {
@@ -329,6 +348,44 @@ export default {
           text-align: center;
         }
       }
+    }
+  }
+  .qrcode{
+    width: 100%;
+    padding-left: 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    .qrcode-box{
+      display: flex;
+      justify-content: flex-start;
+      margin-top: 10px;
+      .qrcode-item{
+        width: auto;
+        height: 300px;
+        margin-right: 20px;
+        border-radius: 2px;
+      }
+    }
+  }
+  .clearDB{
+    margin-top: 20px;
+    margin-bottom: 20px;
+    .clearBtn{
+      margin-left: 20px;
+      color: red;
+      cursor: pointer;
+      border: 1px solid #ff000088;
+      display: inline-block;
+      width: 160px;
+      height: 32px;
+      font-size: 14px;
+      text-align: center;
+      line-height: 32px;
+    }
+    .clearTips{
+      font-size: 12px;
+      color: #ff000088;
+      margin-left: 10px;
     }
   }
   .Tips{
