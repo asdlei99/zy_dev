@@ -13,12 +13,12 @@ module.exports = {
         },
         appId: 'com.hunlongyu.zy',
         copyright: 'Copyright @ 2020 Hunlongyu',
-        productName: 'ZY Dev Player',
+        productName: 'ZY Player',
         publish: [
           {
             provider: 'github',
             owner: 'Hunlongyu',
-            repo: 'zy-dev'
+            repo: 'ZY-Player'
           }
         ],
         mac: {
